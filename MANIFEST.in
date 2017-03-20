@@ -2,5 +2,5 @@ include doc/todo.txt
 include doc/manual.txt
 include doc/manual.html
 include doc/manual.org
-include README.txt COPYING.txt test-identifiers.txt test-query.txt
+include README.rst COPYING.txt test-identifiers.txt test-query.txt
 include metmask/data/metmask-db

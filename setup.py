@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools.core import setup
+from setuptools import setup
 import os
 import metmask
 import metmask.parse
