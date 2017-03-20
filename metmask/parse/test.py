@@ -1,14 +1,26 @@
-from optparse import OptionParser
-import fileinput, sys, tempfile, urllib2, ConfigParser, os, pdb, re, traceback
-import metmask
-import metmask.mask
-import metmask.dbi
-import metmask.parse
+import ConfigParser
+import fileinput
+import httplib
+import os
+import pdb
+import re
 import socket
-from metmask.parse import main as pmain
-import re, xml.dom.minidom, urllib2, pdb, httplib
-reload(pmain)
+import sys
+import tempfile
+import traceback
+import urllib2
+import xml.dom.minidom
+from optparse import OptionParser
+
 from SOAPpy import WSDL
+
+import metmask
+import metmask.dbi
+import metmask.mask
+import metmask.parse
+from metmask.parse import main as pmain
+
+reload(pmain)
 mm = metmask.dbi.db(db="/tmp/balle", ask=False,\
                         debug=True,\
                         minoverlap=1)
@@ -80,5 +92,3 @@ res = server.run_eSummary(tool='metmask', \
 # better
 summaryUrl = "http://www.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pccompound&tool=metmask&email=metmas-geek@lists.sourceforge.net&retmax=10&WebEnv=" + bla['WebEnv'] + "&query_key=" + bla['QueryKey']
 summaryResults = xml.dom.minidom.parse(urllib2.urlopen(summaryUrl)).documentElement
-
-

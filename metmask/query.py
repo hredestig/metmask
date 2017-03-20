@@ -18,10 +18,14 @@ e.g::
 
 """
 
-import re, xml.dom.minidom, urllib2, pdb
+import pdb
+import re
+import urllib2
+import xml.dom.minidom
+
 from SOAPpy import WSDL
 
-from mask import mask, guessTable
+from mask import guessTable, mask
 
 KNOWNTABLES = ['kegg', 'cas', 'cid', 'chebi', 'inchi', 'synonym']
 
@@ -292,5 +296,3 @@ def fetch (mm, un, internal, to) :
             return(pcmask)
     # means that we didn't merge
     return(False)
-    
-

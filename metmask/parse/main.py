@@ -1,6 +1,12 @@
-import re, pdb, metmask.parse, shlex, urllib2, httplib
-from metmask.parse import *
+import httplib
+import pdb
+import re
+import shlex
 import socket
+import urllib2
+
+import metmask.parse
+from metmask.parse import *
 
 socket.setdefaulttimeout(10)
 

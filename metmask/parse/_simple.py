@@ -1,10 +1,11 @@
-from main import fileFormatError
-from main import fixLine
-from metmask.mask import idMisMatchError
-from metmask.mask import mask
-import re,pdb
-import metmask.parse 
+import pdb
+import re
+
 import metmask
+import metmask.parse
+from main import fileFormatError, fixLine
+from metmask.mask import idMisMatchError, mask
+
 
 class parser :
     """ Parse and import identifiers from a file which is formatted
@@ -90,4 +91,3 @@ class parser :
             except:
                 print "#ERROR:" + ll
             ll = parent.getLine()
-            

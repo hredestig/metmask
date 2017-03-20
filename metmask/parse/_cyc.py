@@ -1,8 +1,10 @@
+import pdb
+import re
+
+import metmask.parse
+from main import fixLine, parserError
 from metmask.mask import mask
-from main import parserError
-from main import fixLine
-import re,pdb
-import metmask.parse 
+
 
 class parser :
 
@@ -105,38 +107,3 @@ class parser :
                 parent.setMask(un)
             last = vec
             l = parent.getLine()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -40,11 +40,16 @@ See COPYING.txt for licensing details.
 
 """
 
-import pdb, re, sys, os
+import os
+import pdb
+import re
 import sqlite3
-from mask import mask
-import query
+import sys
+
 import metmask
+import query
+from mask import mask
+
 
 def determine_path ():
    """Borrowed from wxglade.py"""
@@ -992,6 +997,3 @@ class db :
                 print '%-5s %-15s' % (str(t[0]),str(t[1]))
       except :
          raise dbError, "Could not perform a simple select statement"
-         
-
-         

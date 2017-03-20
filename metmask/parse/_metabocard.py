@@ -1,8 +1,10 @@
-from metmask.mask import mask
-import re,pdb
+import pdb
+import re
+
 import metmask.parse
 from main import parserError
-from metmask.mask import idMisMatchError
+from metmask.mask import idMisMatchError, mask
+
 
 class parser:
 
@@ -64,5 +66,3 @@ class parser:
                                     str(parent.lineNum) + "@" + \
                                     tab + " : " + str(iden)
             ll = parent.getLine(comment='\n')
-
-      

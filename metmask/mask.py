@@ -12,7 +12,11 @@ Copyright (C) Henning Redestig
 See COPYING.txt for licensing details.
 """
 
-import re, pdb, metmask,sys
+import pdb
+import re
+import sys
+
+import metmask
 
 
 class badMaskError(Exception) :

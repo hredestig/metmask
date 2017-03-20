@@ -1,9 +1,14 @@
-import re, xml.dom.minidom, urllib2, pdb, httplib
-from metmask.mask import idMisMatchError
-from metmask.mask import mask
-import metmask.parse 
-from metmask.parse.main import parserError
+import httplib
+import pdb
+import re
+import urllib2
+import xml.dom.minidom
+
+import metmask.parse
 import metmask.query as mmquery
+from metmask.mask import idMisMatchError, mask
+from metmask.parse.main import parserError
+
 
 class chemspiderParser:
     

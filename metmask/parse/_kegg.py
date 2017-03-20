@@ -1,10 +1,10 @@
-from main import fileFormatError
-from main import fixLine
-from metmask.mask import idMisMatchError
-from metmask.mask import mask
-from metmask.mask import guessTable
-import re,pdb
-import metmask.parse 
+import pdb
+import re
+
+import metmask.parse
+from main import fileFormatError, fixLine
+from metmask.mask import guessTable, idMisMatchError, mask
+
 
 class parser :
     """ Parse and import the PATHWAYS from the KEGG compounds database
@@ -107,9 +107,3 @@ class parser :
         # send of the last mask if we have one
         if not un.isEmpty() and good :
             parent.setMask(un)
-
-
-
-
-
-

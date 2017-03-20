@@ -1,12 +1,17 @@
-import re, xml.dom.minidom, urllib2, pdb, httplib
-from metmask.mask import idMisMatchError
-from metmask.mask import mask, guessTable
-import metmask.parse 
-from metmask.parse.main import parserError
-import metmask.query as mmquery
-from SOAPpy import WSDL
-import SOAPpy
+import httplib
+import pdb
+import re
 import socket
+import urllib2
+import xml.dom.minidom
+
+import SOAPpy
+from SOAPpy import WSDL
+
+import metmask.parse
+import metmask.query as mmquery
+from metmask.mask import guessTable, idMisMatchError, mask
+from metmask.parse.main import parserError
 
 socket.setdefaulttimeout(10)
 

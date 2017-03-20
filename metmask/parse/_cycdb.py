@@ -1,6 +1,9 @@
+import pdb
+import re
+
+import metmask.parse
 from metmask.mask import mask
-import re,pdb
-import metmask.parse 
+
 
 class parser :
 
@@ -72,4 +75,3 @@ class parser :
             ll = parent.getLine(comment='#')
         if un.nid() > 2 :
             parent.setMask(un)
-

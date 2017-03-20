@@ -1,11 +1,13 @@
-import re, xml.dom.minidom, urllib2, pdb, httplib
-
-from metmask.mask import idMisMatchError
-from metmask.mask import mask
-import re,pdb
-import metmask.parse 
-import metmask.query as query
+import httplib
+import pdb
+import re
 import socket
+import urllib2
+import xml.dom.minidom
+
+import metmask.parse
+import metmask.query as query
+from metmask.mask import idMisMatchError, mask
 
 socket.setdefaulttimeout(5)
 
