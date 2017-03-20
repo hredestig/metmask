@@ -1,0 +1,3 @@
+synonym,cas,kegg
+water,7732-18-5,c00001
+alanine,2899-44-7|302-72-7,c00041|c00133

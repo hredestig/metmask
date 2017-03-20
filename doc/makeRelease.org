@@ -1,0 +1,70 @@
+* Build metmask
+1. Build newest database using makemydb.sh
+2. Remove all files from folder release
+#+begin_src sh LINUX
+  cd sf/trunk
+  make clean
+  make build
+  find -name '*.pyc' -exec rm {} \;
+  make clean
+#+end_src 
+
+#+begin_src sh WINDOWS
+  cd c:\
+  del trunk
+#+end_src
+- Copy trunk to windows somewhere
+#+begin_src sh WINDOWS
+  c:\Python25\python.exe setup-win.py build
+  c:\Python25\python.exe setup-win.py py2exe
+#+end_src
+
+1. unzip dist\library.zip and copy metmask\data to folder library
+2. rename the folder "library" to "library.zip"
+3. replace dist from linux with dist from windows
+4. copy the parsers from to library.zip/metmask/parse
+5. update version number in installer.nsis
+6. move dist back to morran
+
+#+begin_src sh LINUX
+  cd ..
+  make wininstaller
+#+end_src
+
+1. Copy created version to Windows and test.
+* Build metmask.db
+Update the variables defined in the Makefile for the R package.
+#+begin_src sh LINUX 
+  cd ../R
+  make clean
+  make build
+#+end_src
+
+** Windows version						      :ERROR:
+Does not work because AnnotationDbi does not install properly on windows.
+
+- Upload AnnotationDbi_6.6.6.tar.gz to [[http://win-builder.r-project.org/upload.aspx][winbuilder]]
+#+begin_src sh LINUX
+  cp AnnotationDbi.xx ../release/
+#+end_src
+
+* Publish to sourceforge
+#+begin_src sh LINUX
+  cd ../release
+  sftp hredestig,metmask@frs.sourceforge.net
+  cd /home/frs/project/m/me/metmask/metmask.db
+  put AnnotationDbi_6.6.6_2.tar.gz
+  put metmask.db_0.0.4.tar.gz
+  cd ../metmask
+  mkdir 0.5.1
+  put metmask-0.5.1.tar.gz
+  put metmask-0.5.1.win32.exe
+  put metmask_0.5.1.exe
+  bye
+#+end_src
+The follow sourceforge's [[http://sourceforge.net/apps/trac/sourceforge/wiki/Release%20files%20for%20download][instructions]]. 
+
+
+* Publish web
+[[http://sourceforge.net/apps/trac/sourceforge/wiki/Project%20web][manual]]
+

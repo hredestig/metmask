@@ -1,0 +1,1191 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+
+<title>Masking metabolite identifiers - A user manual for MetMask</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2009-11-05 16:19:20 JST"/>
+<meta name="author" content="Henning Redestig"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">Masking metabolite identifiers - A user manual for MetMask</h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Introduction </a>
+<ul>
+<li><a href="#sec-1.1">1.1 Metmask </a>
+<ul>
+<li><a href="#sec-1.1.1">1.1.1 Features </a></li>
+<li><a href="#sec-1.1.2">1.1.2 What metmask is not </a></li>
+<li><a href="#sec-1.1.3">1.1.3 Why metmask? </a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-2">2 Installation </a>
+<ul>
+<li><a href="#sec-2.1">2.1 Linux </a></li>
+<li><a href="#sec-2.2">2.2 Windows </a></li>
+</ul>
+</li>
+<li><a href="#sec-3">3 Configuration </a></li>
+<li><a href="#sec-4">4 Usage </a>
+<ul>
+<li><a href="#sec-4.1">4.1 Examples </a>
+<ul>
+<li><a href="#sec-4.1.1">4.1.1 Import </a></li>
+<li><a href="#sec-4.1.2">4.1.2 Query </a></li>
+</ul>
+</li>
+<li><a href="#sec-4.2">4.2 Special usages </a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5 Parsers and file formats </a></li>
+<li><a href="#sec-6">6 Implementation </a>
+<ul>
+<li><a href="#sec-6.1">6.1 Glossary </a></li>
+<li><a href="#sec-6.2">6.2 Strategy </a>
+<ul>
+<li><a href="#sec-6.2.1">6.2.1 Merging masks </a></li>
+<li><a href="#sec-6.2.2">6.2.2 Confidence code </a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-7">7 Additional remarks </a>
+<ul>
+<li><a href="#sec-7.1">7.1 Version numbers </a></li>
+<li><a href="#sec-7.2">7.2 Caveats </a></li>
+<li><a href="#sec-7.3">7.3 Parsers </a>
+<ul>
+<li><a href="#sec-7.3.1">7.3.1 Write your own parser </a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-8">8 R-integration </a>
+<ul>
+<li><a href="#sec-8.1">8.1 Via the commandline </a></li>
+<li><a href="#sec-8.2">8.2 Via the metmask.db package </a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Introduction </h2>
+<div class="outline-text-2" id="text-1">
+
+<p>Obtaining meta-information (biological annotation etc) for
+metabolomics data can be a quite tedious process involving scripting,
+cross-referencing and hand curating multiple online databases. Reasons
+for this include :
+</p>
+<ul>
+<li>
+Identifiers of metabolites used in raw data often is not easily
+convertible to the indentifiers used by online databases.
+</li>
+<li>
+Online databases often do not share any single primary keys.
+</li>
+<li>
+Databases may list multiple entries for the same metabolite.
+</li>
+<li>
+No single identifier type is used by all resources.
+</li>
+<li>
+Comparing different resources, there may be errors in the sense that
+same identifier can be used to refer to different metabolites.
+
+</li>
+</ul>
+
+<p>These problems makes sharing, managing and analysing metabolomics data
+tedious since it is difficult to keep a machine readable list of the
+different ways to reference metabolites.
+</p>
+
+</div>
+
+<div id="outline-container-1.1" class="outline-3">
+<h3 id="sec-1.1"><span class="section-number-3">1.1</span> Metmask </h3>
+<div class="outline-text-3" id="text-1.1">
+
+<p>This is where the metmask tool comes into the picture by facilitating
+the process of mapping identifier names, including identifiers of
+<b>analytes</b>, to other known identifiers. The process of grouping many
+identifiers to a single entity is here called to <b>mask</b> the
+identifiers. The group of identifier is correspodingly called a <b>mask</b>
+Currently metmask can do the following:
+</p>
+</div>
+
+<div id="outline-container-1.1.1" class="outline-4">
+<h4 id="sec-1.1.1"><span class="section-number-4">1.1.1</span> Features </h4>
+<div class="outline-text-4" id="text-1.1.1">
+
+<ul>
+<li>
+Incorporate an arbitrary list with any kind of identifier and keep
+track of which identifier is associated with which by assigning them
+to internal mask identifiers.
+<ul>
+<li>
+Keep track of the connection information, i.e. which source was
+used for which connection.
+</li>
+<li>
+Annotate connections as <i>weak</i> or <i>non-weak</i> depending on if they
+are ambiguous or not. 
+</li>
+<li>
+Fusing different masks if input data implies that the masks are the
+same.
+</li>
+</ul>
+</li>
+<li>
+Import widely used databases such as the main NIST library, the KEGG
+and PlantCyc compounds files.
+</li>
+<li>
+Query the database and extract one or all related identifiers for any
+known identifier.
+</li>
+<li>
+Query PubChem and KEGG for identfiers that are not in the local
+database and save any new associations.
+</li>
+<li>
+Output in different formats, including graphs which can easily be
+visualized using e.g. <a href="http://www.cytoscape.org">cytoscape</a> or <a href="http://www.r-project.org">R</a> (with <a href="http://www.bioconductor.org/packages/release/bioc/html/Rgraphviz.html">Rgraphviz</a>).
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-1.1.2" class="outline-4">
+<h4 id="sec-1.1.2"><span class="section-number-4">1.1.2</span> What metmask is not </h4>
+<div class="outline-text-4" id="text-1.1.2">
+
+<p>Metmask in its current form does not:
+</p>
+<ul>
+<li>
+Provide a way to identify metabolites based on their Mass spectra,
+chromatographical retention indexes or similar. Metmask can however
+associate ambiguous information (such as mass forumlae) and provides a
+way to search for these.
+</li>
+<li>
+Ensure that the identifiers mapped to by the database is correct in
+terms of what the original creators of the identifiers
+intended. Metmask only knows what is being imported into the
+database and it holds that if you put garbage in you get garbage
+out. 
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-1.1.3" class="outline-4">
+<h4 id="sec-1.1.3"><span class="section-number-4">1.1.3</span> Why metmask? </h4>
+<div class="outline-text-4" id="text-1.1.3">
+
+<p>A great advantage of metmask compared to other databases <sup><a class="footref" name="fnr.1" href="#fn.1">1</a></sup> such
+as more comprehensive databases such as PubChem is that
+</p>
+<ul>
+<li>
+it is easy to tailor to only load the desired sources in the
+database so that it matches the desired platform. For e.g. GC-MS
+metabolomics data, this would imply that all stereo-isomers of one
+metabolite should be behind the same mask since stereo-isomers
+usually are not resolved.
+</li>
+<li>
+comparing to online queries metmask is very fast
+</li>
+<li>
+combining different databases is easy whereas online databases may
+be lacking the source of interest (e.g. one cannot directly query
+for <a href="http://www.arabidopsis.org">AraCyc</a> using PubChem but this is easily done in metmask).
+<ul>
+<li>
+connections which requires intermediate identifiers is also
+straight-forward in metmask.
+
+</li>
+</ul>
+</li>
+</ul>
+
+<p>A word of caution, metmask assumes certain basic skills working with a
+shell. If you do wish to use metmask but feel that you need a
+graphical user environment, then please post a message on the user
+forum at <a href="http://metmask.sourceforge.net">http://metmask.sourceforge.net</a>.
+</p>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Installation </h2>
+<div class="outline-text-2" id="text-2">
+
+
+</div>
+
+<div id="outline-container-2.1" class="outline-3">
+<h3 id="sec-2.1"><span class="section-number-3">2.1</span> Linux </h3>
+<div class="outline-text-3" id="text-2.1">
+
+<p>Download metmask-&lt;x.y.z&gt;.tar.gz and
+</p><ol>
+<li>
+Unpack with 
+<pre class="example">
+tar -zxvf metmask-&lt;x.y.z&gt;.tar.gz
+</pre>
+
+</li>
+<li>
+Go to created directory 
+<pre class="example">
+cd metmask-&lt;x.y.z&gt;
+</pre>
+
+</li>
+<li>
+install either as root
+<pre class="example">
+sudo python setup.py install
+</pre>
+
+<p>or locally
+</p><pre class="example">
+python setup.py install --home=&lt;dir&gt;
+</pre>
+
+</li>
+<li>
+in case you used the &ndash;home switch, tell python where you installed
+the package e.g.
+<pre class="example">
+export PYTHONPATH=&lt;dir&gt;/lib/python
+</pre>
+
+</li>
+</ol>
+</div>
+
+</div>
+
+<div id="outline-container-2.2" class="outline-3">
+<h3 id="sec-2.2"><span class="section-number-3">2.2</span> Windows </h3>
+<div class="outline-text-3" id="text-2.2">
+
+<p>Download metmask-&lt;x.y.z&gt;.exe and execute it. Open the windows shell
+via the start menu (run command "cmd"). Note that metmask is currently commandline only so you need to type the commands.
+</p></div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Configuration </h2>
+<div class="outline-text-2" id="text-3">
+
+<p>When metmask is first executed it creates the file ``~/.metmask.cfg``
+which specifies the defaults values for the options listed
+above. Options given explicitly over-rides the configuration file.
+</p>
+<p>
+The package comes with a default database is the one queried
+automatically. If you install the package as adminisitrator/root you
+will not have write-access to this database and will therefore not be
+able to edit the database &ndash; only query it. To get your own database,
+just copy the default database (its location will be in the
+configuration file after you first run the program or shown when
+trying to execute metmask) to wherever you have read/write access and
+edit the configuration file accordingly:
+</p>
+
+
+<pre class="example">...
+[general]
+db = &lt;path to your read/write accessible database&gt;
+...
+</pre>
+
+
+
+<p>
+Further configuration options are shown below.
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption>Configuration options defined in the file .metmask.cfg</caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col">Section</th><th scope="col">Option</th><th scope="col">Meaning</th></tr>
+</thead>
+<tbody>
+<tr><td>Simple</td><td>na</td><td>A regexp for strings to be considered missing values</td></tr>
+<tr><td></td><td>sep1</td><td>Major separator, for separating identifier types</td></tr>
+<tr><td></td><td>sep2</td><td>Minor separator, for separating identifiers</td></tr>
+<tr><td>General</td><td>confidence</td><td>Default confidence code</td></tr>
+<tr><td></td><td>goal</td><td>Default identifier type to search for</td></tr>
+<tr><td></td><td>db</td><td>Path to database</td></tr>
+<tr><td></td><td>kegg</td><td>URL to the KEGG compounds file</td></tr>
+<tr><td></td><td>cyc</td><td>URL to the PlantCyc compounds database</td></tr>
+<tr><td></td><td>ask</td><td>Should merging of masks be done interactively or not</td></tr>
+<tr><td></td><td>minoverlap</td><td>Specifies how many <i>types</i> of identifiers must overlap between two groups of metabolites for them to be considered to be referring to the same metabolite</td></tr>
+</tbody>
+</table>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Usage </h2>
+<div class="outline-text-2" id="text-4">
+
+<p>The program is interfaced using the script called metmask. To invoke
+it just execute ``metmask`` from the command-line. The default action
+is to read identifiers from standard input, guess what kind of
+identifier it is and then query the local database for that
+identifier. The following options are available:
+</p>
+
+
+
+<pre class="src src-sh">metmask --version 
+</pre>
+
+
+
+<pre class="example">
+This is metmask v0.5.1
+</pre>
+
+
+
+
+<pre class="src src-sh">metmask --help
+</pre>
+
+
+
+
+<pre class="example">Usage: metmask [X] [options]
+X represents a stream of identifiers from STDIN 
+or a single identifier if -a is set or a file with 
+identifiers, one per line. If X is not provided one
+or more of the options below must be set.
+
+Options:
+  --version             show program's version number and exit
+  -h, --help            show this help message and exit
+  -a IDENTIFIER, -q IDENTIFIER, --query=IDENTIFIER, --as-is-id=IDENTIFIER
+                        A single  identifier to query the data base for to be
+                        interpreted as is. Also searches for weak (ambiguous)
+                        identifiers is the universal argument is set
+  -w, --wild            Input query may contain wild cards ('_' matches any
+                        single character and '%' matches any sequence of
+                        characters).
+  -t TABLE, --table=TABLE
+                        Identifier is of type TABLE (i.e. identifier type).
+                        Metmask tries to guess which table is meant in case
+                        unspecified. Multiple tables can be given comma
+                        separated.
+  -g TABLE, --goal=TABLE
+                        Fetch goal identifier of TABLE or use 'ALL' to get all
+                        entries. Multiple tables can be given pipe separated.
+  -d PATH, --db=PATH    Use database located at PATH
+  -s, --stats           Print some statistics of the current database. Print
+                        more stats if the universal argument is set.
+  -v, --verbose, --debug
+                        Be more verbose, print debug information
+  -i FILE, --import=FILE
+                        Populate database using this file. For importing the
+                        KEGG compounds file or the PlantCyc compounds file,
+                        FILE can also be one of the keywords 'cyc' or 'kegg'
+                        in order to use the ftp provided files. Local files
+                        have precedence. Universal argument: Never ask before
+                        merging on input, guess what to do
+  -n NAME, --name=NAME  Each import is given a name, usually this equals the
+                        filename or name of external database but can be set
+                        explicitly with this option
+  -c CODE, --confidence-code=CODE
+                        The confidence code of the data to import
+  -p PARSER, --parser=PARSER
+                        Use this parser to populate the database
+  -o OUTPUT, --output=OUTPUT
+                        Output modes, flat: comma delimited output, mask: a
+                        text represenation of all info in the mask, graph: a
+                        connection graph to use for visualization in e.g.
+                        cytoscape.
+  -M MASTER, --master=MASTER
+                        Master identifier for this import
+  -m, --merge-interactively
+                        If set, ask about merging masks upon insert.
+  -r MMID, --remove=MMID
+                        Drop mask with this mmid. Can not be undone!
+                        Universal argument: Do not ask about deletions before
+  -x TABLES, --export=TABLES
+                        Export all information in the provided tables (comma
+                        separated, potentially quoted). Use the keyword ALL
+                        for exporting all known tables.
+  -u, -F, --universal   Universal argument. If set, causes some arguments to
+                        act differently.
+  -f, --first           Only return one identifier of each queried table.
+                        Suppress printing multiple identfiers.
+  -e, --external        Try to query PubChem and KEGG if no suitable match
+                        could be found. Universal argument: Save retrieved
+                        information in the local database
+  -1, --one-hit         Only return the first hit  from the database
+  -Q, --no-quote        Suppress addition of quotes to output
+  -S, --synchronize     Upon import, minimize the creation of new masks,
+                        instead just populate the existing ones and ignore all
+                        other input
+</pre>
+
+
+
+
+
+</div>
+
+<div id="outline-container-4.1" class="outline-3">
+<h3 id="sec-4.1"><span class="section-number-3">4.1</span> Examples </h3>
+<div class="outline-text-3" id="text-4.1">
+
+
+</div>
+
+<div id="outline-container-4.1.1" class="outline-4">
+<h4 id="sec-4.1.1"><span class="section-number-4">4.1.1</span> Import </h4>
+<div class="outline-text-4" id="text-4.1.1">
+
+<p>To import the KEGG compounds file directly from the KEGG FTP server:
+</p>
+<pre class="example">
+metmask -i kegg
+</pre>
+
+
+<p>
+To import a comma delimited file, test.csv, with identifiers
+structured as
+</p><pre class="example">
+myId,synonym,weak:type
+a1,alanine,amino-acid
+a2,ala,amino-acid
+a1,ala,amino-acid
+a3,sucrose,sugar
+a4,lysine,amino-acid
+</pre>
+
+<p>we call
+</p>
+
+
+<pre class="src src-sh">metmask --import test.csv --parser simple --master myId --db /tmp/test-db
+</pre>
+
+
+
+<p>
+The first line in a test.csv names the types of identifiers. These
+will afterwards be possible query using the -t switch e.g.
+</p>
+
+
+<pre class="src src-sh">metmask --query a1 --table myId --goal synonym --db /tmp/test-db
+</pre>
+
+
+
+
+<pre class="example">
+'"alanine"|"ala"'
+</pre>
+
+
+<p>
+The input comma delimited file should be structured as:
+</p>
+
+
+<pre class="example">tablename1 , &lt;confidence code&gt;:tablename2 , tablename3
+table1-id1 , table2-id1                   , table3-id1|table3-id2|table3-id3
+table1-id1 , table2-id1                   , table3-id1|table3-id2|table3-id3
+...
+</pre>
+
+
+
+<p>
+and is in the example above read by the parser "simple". Note that the
+confidence code can be used to specify whether a table is "weak" or
+not. In the example, test.csv, type is used to set a metabolite type
+but this type is not used to group metabolites, only to annotate
+them. See <a href="#sec-4.1.2">*Query</a> for further details.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-4.1.2" class="outline-4">
+<h4 id="sec-4.1.2"><span class="section-number-4">4.1.2</span> Query </h4>
+<div class="outline-text-4" id="text-4.1.2">
+
+<p>To query the database for everything it knows about alanine::
+</p>
+
+
+<pre class="src src-sh">metmask --query alanine --goal ALL --output mask -d /tmp/test-db
+</pre>
+
+
+
+
+
+<pre class="example">o-o-o-o:
+mask:
+[1]
+myId:
+a1 test.csv 3 test.csv 3
+a2 test.csv 3
+synonym:
+alanine test.csv 3
+ala test.csv 3 test.csv 3
+preferred:
+2:ala test.csv 0
+</pre>
+
+
+
+
+<p>
+or to get all metabolites we specified as type "amino-acid" in a
+format that is easy to import to other programs.
+</p>
+
+
+<pre class="src src-sh">metmask --query amino-acid --table type --goal myId,synonym -d /tmp/test-db
+</pre>
+
+
+
+
+<pre class="example">
+'"a1"|"a2"','"alanine"|"ala"'
+'"a4"','"lysine"'
+</pre>
+
+
+<p>
+Note that the input has been masked so that "a2" also is associated
+with "alanine" even though this was never explicitly specified in the
+input.
+</p>
+<p>
+The import also specified a 'master' identifier which is interpreted
+as the source for connections. In this case, each line in test.csv is
+therefore read as myId <i>connects</i> to synonym. When a master identifier
+has been set, we can produce graph like output:
+</p>
+
+
+<pre class="src src-sh">metmask --query a1 --table myId --goal ALL --output graph --db /tmp/test-db -u
+</pre>
+
+
+
+
+<pre class="example">
+myId:a1       synonym:alanine test.csv        False
+myId:a1       synonym:ala     test.csv        False
+myId:a1       type:amino-acid test.csv        True
+myId:a2       synonym:ala     test.csv        False
+myId:a2       type:amino-acid test.csv        True
+</pre>
+
+
+<p>
+which gives the previous list (which can be imported to <a href="http://www.cytoscape.org">Cytoscape</a> for
+visualization, simply click import from file and set the first column
+as source node and second column as target node.). The columns are
+Node 1, Node 2, Source of edge and an indicator for whether the
+connection should be considered "weak" or not. The "-u" switch tells
+metmask to also output weak identifiers.
+</p>
+
+<div class="figure">
+<p><img src="./test.png"  alt="./test.png" /></p>
+<p>The connection graph for the example file test.csv as visualized by Cytoscape.</p>
+</div>
+
+<p>
+If you have a file of identifiers that you want to query the database
+for KEGG identifiers you can simply use standared shell re-direction
+and query as:
+</p>
+<pre class="example">
+cat myFileWithIdentifiers | metmask -g kegg
+</pre>
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4.2" class="outline-3">
+<h3 id="sec-4.2"><span class="section-number-3">4.2</span> Special usages </h3>
+<div class="outline-text-3" id="text-4.2">
+
+<p>A problem one sometimes faces is that used identifiers (e.g. synonyms)
+for is that identifiers are difficult to use in graphical
+representations such as plots. Manual conversion on a 'plot-per-plot
+basis' is of course not desirable and for this purpose one can use the
+special metmask table 'preferred'. Each mask is given exactly on
+preferred identifier upon import (the first non-empty identifier if it
+is not set explicitly). One way to fix the synonyms (assuming they are
+already known to the database) would be to export the current
+preferred labels:
+</p>
+<pre class="example">
+cat mySynonyms | metmask -g preferred &gt; myPreferred
+</pre>
+
+
+<p>
+then merge to get a new input:
+</p>
+<pre class="example">
+paste mySynonyms myPreferred &gt; myInput
+echo -e "synonym\tpreferred" | cat - myInput
+</pre>
+
+
+<p>
+then manually edit ``myInput`` to set the preferred labels as desired
+and do:
+</p>
+<pre class="example">
+metmask -i myInput -p simple
+</pre>
+
+
+<p>
+now you can query those any identifiers associated with the original
+synonyms and be sure to always get your desired preferred labels.
+</p></div>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Parsers and file formats </h2>
+<div class="outline-text-2" id="text-5">
+
+<p>The parsers are modules that can read specific file formats, extract
+the important data and commit it to the database. The parsers that are
+included in the main distribution are listed in Table \ref{tab:parsers} and \ref{tab:formats}.
+</p><table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption>Available parsers. Name is the name of the parser module, Tables are the types of identifiers that are extracted and imported from the resource, Weak tables are types of identifiers that are imported as weak tables.</caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col">Name</th><th scope="col">Type of input</th><th scope="col">Tables</th><th scope="col">Weak tables</th></tr>
+</thead>
+<tbody>
+<tr><td>chebi</td><td>ChEBI</td><td>chebi, iupac, cas. kegg, inchi, smiles</td><td>synonym, formula</td></tr>
+<tr><td>cycdb</td><td>compounds.dat</td><td>cycdb, cas, inchi, kegg</td><td>synonym, smiles</td></tr>
+<tr><td>cyc</td><td>compounds dump file</td><td>cas, kegg, smiles</td><td>formula, synonym, cycpath, smiles</td></tr>
+<tr><td>kegg</td><td>kegg compounds</td><td>kegg, synonym, cas, chebi, knapsack, sid</td><td>formula, pathway</td></tr>
+<tr><td>mpimp</td><td>NIST MS export file</td><td>kegg, synonym, cas, mpimp</td><td></td></tr>
+<tr><td>riken</td><td>NIST MS export file</td><td>riken, cas, kegg, synonym</td><td>formula, smiles</td></tr>
+<tr><td>sdf</td><td>SDF</td><td>nist, cas, synonym</td><td>formula</td></tr>
+<tr><td>simple</td><td>CSV file</td><td>depends on input</td><td></td></tr>
+</tbody>
+</table>
+
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption>File formats</caption>
+<colgroup><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col">File</th><th scope="col">Format</th></tr>
+</thead>
+<tbody>
+<tr><td>ChEBI</td><td>Online database, read by the ChEBI SOAP service</td></tr>
+<tr><td>compounds.dat</td><td><a href="http://bioinformatics.ai.sri.com/ptools/flatfile-format.html#compounds.dat">http://bioinformatics.ai.sri.com/ptools/flatfile-format.html#compounds.dat</a></td></tr>
+<tr><td>compounds dump file</td><td>See specification at  <a href="ftp://ftp.plantcyc.org/Pathways/README.txt">ftp://ftp.plantcyc.org/Pathways/README.txt</a></td></tr>
+<tr><td>kegg compounds</td><td>See specification at  <a href="ftp://ftp.genome.jp/pub/kegg/ligand/README">ftp://ftp.genome.jp/pub/kegg/ligand/README</a></td></tr>
+<tr><td>NIST MS export file</td><td>See example specification at in AMDIS user manual; <a href="http://chemdata.nist.gov/mass-spc/amdis/AMDIS.pdf">http://chemdata.nist.gov/mass-spc/amdis/AMDIS.pdf</a></td></tr>
+<tr><td>SDF <sup><a class="footref" name="fnr.2" href="#fn.2">2</a></sup></td><td>Structured data format, see example at <a href="http://www.pharmainformatic.com/html/sd-format.html">http://www.pharmainformatic.com/html/sd-format.html</a>.</td></tr>
+<tr><td>CSV file</td><td>Comma separated table</td></tr>
+</tbody>
+</table>
+
+
+<p>
+The CSV file is structured so that the first line is header naming the
+types of identifiers that are listed below. The header my also specify if all indentifiers below should be imported as weak eg
+</p>
+<pre class="example">
+mylocalid,cas,synonym,weak:formula
+</pre>
+
+
+<p>
+for a file specifiying links between mylocalid a CAS registry number,
+synonyms and sum formula (which should be imported as weak). Following
+lines list the identifiers. Multiple identifiers for the same
+identifier type are separated by the pipe "|" character. Identifiers
+that contain comma must be surrounded by quotes (nested quotes are
+allowed) eg:
+</p>
+<pre class="example">
+id-001,"'50-40-1'|'50-43-2'","1-2,non-existing-compound",C6H6O6
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Implementation </h2>
+<div class="outline-text-2" id="text-6">
+
+<p>This section is not directly necessary to read in order to use the
+program.
+</p>
+</div>
+
+<div id="outline-container-6.1" class="outline-3">
+<h3 id="sec-6.1"><span class="section-number-3">6.1</span> Glossary </h3>
+<div class="outline-text-3" id="text-6.1">
+
+<p>Before describing the current implementation it is necessary to
+clarify some concepts:
+</p>
+<dl>
+<dt>mask</dt><dd>
+A group of identifiers that all are associated with the same
+biological compound.
+
+</dd>
+<dt>table</dt><dd>
+A type of identifier such as CAS number or KEGG ID.
+
+</dd>
+<dt>identifier</dt><dd>
+A specific identifier such as the KEGG ID C00001.
+
+</dd>
+<dt>analyte</dt><dd>
+A compound that is identified by the chromatographic
+method at hand.
+
+</dd>
+<dt>metabolite</dt><dd>
+A chemical compound that can be found <b>in vivo</b>
+
+</dd>
+<dt>preferred</dt><dd>
+A special table that holds excatly one string for each
+mask. This string is meant to provide a human readable
+name for each mask.
+</dd>
+<dt>weak</dt><dd>
+An "identifier" which can not be used as metabolite identifier.
+
+</dd>
+</dl>
+</div>
+
+</div>
+
+<div id="outline-container-6.2" class="outline-3">
+<h3 id="sec-6.2"><span class="section-number-3">6.2</span> Strategy </h3>
+<div class="outline-text-3" id="text-6.2">
+
+<p>Metmask uses a local sqlite3 database to which it can import
+information from various user provided re-sources. Ideally, the first
+import to the database should be a curated list of identifiers listing
+masks that definitely map to different metabolites. These are then
+used as a seed data-set to which one can add more identifiers by
+importing the desired sources.
+</p>
+<p>
+Every association is annotated with two attributes. Where it came
+from, i.e. its source and its confidence code. The source is kept so
+that, upon later exports it is easy to see the chain of evidence. The
+confidence code is a bit more complicated and is used to determine
+which masks is allowed to be merged with which, see <a href="#sec-4">Merging masks</a>.
+</p>
+</div>
+
+<div id="outline-container-6.2.1" class="outline-4">
+<h4 id="sec-6.2.1"><span class="section-number-4">6.2.1</span> Merging masks </h4>
+<div class="outline-text-4" id="text-6.2.1">
+
+<p>As an import proceeds metmask ensures that a single identifier only
+maps to a single mask. If one tries to do an import that matches an
+already existing mask a conflict arises and the following alternatives
+are available to resolve the problem:
+</p>
+<ul>
+<li>
+Merge the new information to the exiting mask.
+</li>
+<li>
+Annotate the overlapping information as 'weak' and create a new mask.
+
+</li>
+</ul>
+
+<p>To minimize errors the following rule-set is used to judge if two
+masks should be merged or not.
+</p>
+<ol>
+<li>
+Two masks coming from the same source are compatible
+if they share a non-weak identifier.
+</li>
+<li>
+Two masks coming from different sources are compatible
+if they share at least n types of identifiers, where n is
+user-defined.
+</li>
+<li>
+Two masks are not compatible if they are associated
+with non-equal sum-formulae (ignoring single protons).
+</li>
+<li>
+Two masks are not compatible if both carry an indentifiers
+annotated with 'nevermerge'.
+</li>
+</ol>
+</div>
+
+</div>
+
+<div id="outline-container-6.2.2" class="outline-4">
+<h4 id="sec-6.2.2"><span class="section-number-4">6.2.2</span> Confidence code </h4>
+<div class="outline-text-4" id="text-6.2.2">
+
+<p>The confidence code is an code that which defines whether masks with
+those confidence codes are allowed to be merged or not. The code is
+either an arbitrary string chosen upon import such as "good" or "bad"
+depending on the quality of the source or one of the reserved codes:
+</p>
+<dl>
+<dt>nevermerge</dt><dd>
+Two masks that carry identifiers tagged with
+``nevermerge`` will, as the name suggests never be merged.
+</dd>
+<dt>weak</dt><dd>
+An indentifier tagged as ``weak`` does not count when
+counting overlap between two masks. All identifier are unique, but
+when adding a mask carrying e.g. the identifier G will not be added
+to the Glycine mask which also carries G if G was tagged as
+``weak``.
+
+</dd>
+</dl>
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-7" class="outline-2">
+<h2 id="sec-7"><span class="section-number-2">7</span> Additional remarks </h2>
+<div class="outline-text-2" id="text-7">
+
+
+</div>
+
+<div id="outline-container-7.1" class="outline-3">
+<h3 id="sec-7.1"><span class="section-number-3">7.1</span> Version numbers </h3>
+<div class="outline-text-3" id="text-7.1">
+
+<p>Metmask version numbers are on the form x.y.z. For smaller changes z
+is increased. Changes to the database structure and the tables that
+are expected to be found in it always include an increase to y. An
+increased value of x indicate a stable version which is to be
+considered feature complete.
+</p></div>
+
+</div>
+
+<div id="outline-container-7.2" class="outline-3">
+<h3 id="sec-7.2"><span class="section-number-3">7.2</span> Caveats </h3>
+<div class="outline-text-3" id="text-7.2">
+
+<p>The following is a list of irregular behaviour of metmask.
+</p>
+<ul>
+<li>
+Metmask does not allow the pipe character ``|`` in identifiers. Any
+pipes are silently discarded upon import.
+
+</li>
+<li>
+Metmask does not perform any comprehensive integrity checks of the
+input, if a incorrect parser is specified, the input might corrupt
+the database.
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-7.3" class="outline-3">
+<h3 id="sec-7.3"><span class="section-number-3">7.3</span> Parsers </h3>
+<div class="outline-text-3" id="text-7.3">
+
+<p>If you have type of source file which can not easily be converted to
+the format above you need to either <a href="#sec-7.3">Write your own parser</a> or ask for
+help to do so. It is fairly easy to do so both strategies will
+probably be successful. Please contribute any new parsers to the
+metmask project.
+</p>
+</div>
+
+<div id="outline-container-7.3.1" class="outline-4">
+<h4 id="sec-7.3.1"><span class="section-number-4">7.3.1</span> Write your own parser </h4>
+<div class="outline-text-4" id="text-7.3.1">
+
+<p>The parsers are managed in a plug-in like system. See the source
+package metmask/parse for examples, by putting a new parser and naming
+it "_newparser.py" in that directory, it immediately ready to use. See following example for how a parser should be structured.
+</p>
+
+
+
+<pre class="src src-python"><span style="color: #CC7832; font-weight: bold;">from</span> metmask.mask <span style="color: #CC7832; font-weight: bold;">import</span> mask
+<span style="color: #CC7832; font-weight: bold;">import</span> metmask.parse 
+<span style="color: #CC7832; font-weight: bold;">from</span> main <span style="color: #CC7832; font-weight: bold;">import</span> fileFormatError
+<span style="color: #B150E7; font-style: italic;"># function for fixing a string to a vector considering quotations etc
+</span><span style="color: #CC7832; font-weight: bold;">from</span> main <span style="color: #CC7832; font-weight: bold;">import</span> fixLine
+
+<span style="color: #CC7832; font-weight: bold;">class</span> <span style="color: #8888ff; font-weight: bold;">parser</span> :
+    <span style="color: #A5F26E;">""" &lt; your documentation &gt;
+    """</span>
+
+    <span style="color: #B150E7; font-style: italic;"># constructor
+</span>    <span style="color: #CC7832; font-weight: bold;">def</span> <span style="color: #E8BF6A; font-weight: bold;">__init__</span> (<span style="color: #CC7832; font-weight: bold;">self</span>, parent) :
+        <span style="color: #B150E7; font-style: italic;"># parent is the 'main' class of parser which handles file
+</span>        <span style="color: #B150E7; font-style: italic;"># reading and communication with the metmask database
+</span>
+        <span style="color: #B150E7; font-style: italic;"># make sure to set the table that you use, these are used to
+</span>        <span style="color: #B150E7; font-style: italic;"># create corresponding tables in the database e.g.
+</span>        parent.tables = [<span style="color: #A5F26E;">'cas'</span>, <span style="color: #A5F26E;">'mylocalid'</span>]
+        <span style="color: #CC7832; font-weight: bold;">self</span>.parent = parent
+
+    <span style="color: #B150E7; font-style: italic;"># the function that does the actual reading
+</span>    <span style="color: #CC7832; font-weight: bold;">def</span> <span style="color: #E8BF6A; font-weight: bold;">process</span> (<span style="color: #CC7832; font-weight: bold;">self</span>) :
+        parent = <span style="color: #CC7832; font-weight: bold;">self</span>.parent
+        <span style="color: #B150E7; font-style: italic;"># get a line of input
+</span>        ll = parent.getLine()
+        <span style="color: #CC7832; font-weight: bold;">while</span> ll :
+            <span style="color: #B150E7; font-style: italic;"># create a mask object
+</span>            un = mask({}, parent.mm.idpatterns) 
+            <span style="color: #B150E7; font-style: italic;"># append the information to the mask (see
+</span>            <span style="color: #B150E7; font-style: italic;"># documentation of the mask object)
+</span>            un.append(&lt;table Type&gt;, ll[0], ll[1], ll[2])
+            <span style="color: #B150E7; font-style: italic;"># send the mask to the database
+</span>            parent.setMask(un)
+            <span style="color: #B150E7; font-style: italic;"># get a new line
+</span>            ll = parent.getLine()
+</pre>
+
+
+
+
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> R-integration </h2>
+<div class="outline-text-2" id="text-8">
+
+
+</div>
+
+<div id="outline-container-8.1" class="outline-3">
+<h3 id="sec-8.1"><span class="section-number-3">8.1</span> Via the commandline </h3>
+<div class="outline-text-3" id="text-8.1">
+
+<p>Since Metmask is a commandline tool it is easy to use it from R via
+the use of R's ``system`` function. An example for checking what CAS
+numbers and synonyms are (non-weakly) connected to the KEGG identifier
+C00002 could be:
+</p>
+
+
+
+<pre class="src src-R">system(<span style="color: #A5F26E;">"metmask -a c00002 -g cas,synonym -Q"</span>, intern=<span style="color: #8888ff; font-weight: bold;">TRUE</span>)
+
+</pre>
+
+
+
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<tbody>
+<tr><td>"56-65-5"</td><td>"42373-41-1"</td><td>"987-65-5"</td><td>"adenosine 5'-triphosphate"</td><td>"adenosine-5'-triphosphate dipotassium salt dihydrate"</td><td>"atp"</td></tr>
+</tbody>
+</table>
+
+obviously, this will only work if metmask in your executable path.
+</div>
+
+</div>
+
+<div id="outline-container-8.2" class="outline-3">
+<h3 id="sec-8.2"><span class="section-number-3">8.2</span> Via the metmask.db package </h3>
+<div class="outline-text-3" id="text-8.2">
+
+<p>One can also use the metmask.db package provide for to interact with the metmask database. Download and install the "special non-official version" of bioconductors AnnotationDbi (version 6.6.6) available via the metmask <a href="http://metmask.sourceforge.net">project page</a>. Also download and install the metmask.db package. In R, the provided database can be queried just as the other AnnotationDbi packages (see vignettes for both AnnotationDbi and metmask.db) e.g to query for the KEGG identifiers associated with alanine:
+</p>
+
+
+<pre class="src src-R"><span style="color: #6BCFF7;">library</span>(metmask.db)
+qmetmask(<span style="color: #A5F26E;">"alanine"</span>, <span style="color: #A5F26E;">"kegg"</span>)
+
+</pre>
+
+
+
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" />
+</colgroup>
+<tbody>
+<tr><td>"c00041"</td></tr>
+<tr><td>"c00133"</td></tr>
+<tr><td>"c01401"</td></tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+</div>
+</div>
+</div>
+<div id="footnotes">
+<h2 class="footnotes">Footnotes: </h2>
+<div id="text-footnotes">
+<p class="footnote"><sup><a class="footnum" name="fn.1" href="#fnr.1">1</a></sup> There are databases that try to map metabolites
+comprehensively, eg <a href="http://www.biospider.ca">biospider</a> but although they are very
+useful, they are much too slow to be used for day-to-day metabolite identifier mapping
+</p>
+<p class="footnote"><sup><a class="footnum" name="fn.2" href="#fnr.2">2</a></sup> For SDIdentifier type is indicated by e.g. &gt; &lt;CASNO&gt;
+following a listing of the associated identifiers. Entries are
+separated by four dollar signs.
+</p>
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: Henning Redestig
+<a href="mailto:henning_at_psc_point_riken_point_jp">&lt;henning_at_psc_point_riken_point_jp&gt;</a>
+</p>
+<p class="date"> Date: 2009-11-05 16:19:20 JST</p>
+<p class="creator">HTML generated by org-mode 6.32trans in emacs 23</p>
+</div>
+</div>
+</body>
+</html>

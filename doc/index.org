@@ -1,0 +1,212 @@
+#+TITLE: 
+#+OPTIONS: num:nil toc:nil 
+#+AUTHOR: Henning Redestig
+#+EMAIL: henning_atmark_pscDOTrikenDOTjp
+#+STYLE: <link REL="SHORTCUT ICON" HREF="metmask.ico">
+
+#+begin_html
+  <table width="100%" border=0>
+    <tr>
+      <td width="10%">
+        <div id="logo" style="float: center; text-align: left;">
+          <left>
+            <img src="metmask.png"  width=150px alt="Baitworm!">
+          </left>
+        </div>
+      </td>
+      <td width="80%">
+        <div id="subtitle" left; text-align:center; max-width=300px; font-size:10pt>
+          <center>
+            <p>
+            <font size="7" face="sans-serif">
+              The MetMask Project
+            </font>
+            </p>
+            <font size="4" face="sans-serif">
+              [ <a href="http://sourceforge.net/projects/metmask/">Project page</a> | <a href="http://sourceforge.net/projects/metmask/files">Download</a> | <a href="http://sourceforge.net/projects/metmask/forums">Forum</a> | <a href="manual.html">Manual</a> ]
+            </font>
+            <br>
+            <font size="2" face="sans-serif">
+              [ <a href="#try">Try it out</a> | <a href="#features">Features</a> ]
+            </font>
+          </center>
+        </div>
+        </td>
+      <td width="10%">
+      </td>
+    </tr>
+  </table>
+#+end_html
+
+#<<what>>
+* What is MetMask?
+-------------------------------------------------------------------
+MetMask is a tool for keeping track of metabolite identifiers. It is
+meant to make it easier to convert a set of identifiers of both
+metabolites and analytes to other types of identifiers. This is useful
+for applied day-to-day [[http://en.wikipedia.org/wiki/Metabolomics][metabolomics]] research and can make data
+analysis less of chore.
+
+The easiest way to explain what this tool does is by an
+example. Consider the situation where you have a dataset which was
+annotated the following messy identifiers list, in a file called
+ids.txt:
+#+BEGIN_EXAMPLE
+  1096.1_l-alanine[2tms]
+  alanine, dl-
+  1881.6_d-(+)-glucose[5tms_1meox]
+  glucose_maj_1meox_5tms
+  sucrose, d- (8tms)
+#+END_EXAMPLE
+
+which correspond to entries in your spectra reference file. To
+interpret the data you might want other associated information such as
+the CAS numbers of the parent metabolites. You can do this with your
+own set of scripts, or you could do it using MetMask:
+
+#+begin_src sh :results output
+metmask < ids.txt -g preferred,cas  -Q -f
+#+end_src
+
+#+resname:
+: l-alanine,2899-44-7
+: l-alanine,2899-44-7
+: beta-d(+)glucose,50-99-7
+: beta-d(+)glucose,50-99-7
+: sucrose,57-50-1
+
+querying for the "preferred synonym" and the CAS number. 
+#<<try>>
+* Try it out!
+----------
+MetMask is meant to be downloaded and used locally because that way you can change the database to fit your own needs. But of course it is nice to try it out first so below you can query the database that is distributed with the latest version of MetMask.
+
+Type in your query as a single identifier, choose which type of identifier you entered (or let MetMask guess), which output identifiers you want and hit go. *Warning: no guarantee is given about correctness, use at your own risk.*
+#+begin_html
+  <table>
+    <tr>
+      <td>
+        <form action="http://prime.psc.riken.jp/henning/metmask-cgi.py", method=post>
+          Query:<br><input type=text name="query" size=10><br>
+          <input type=checkbox name="weak" value="no"> Search for weak identifiers too[<a href="webtool-help.html#weak">?</a>]<br>
+          <input type=checkbox name="wild"> Allow wildcards [<a href="webtool-help.html#wild">?</a>]<br>
+          <table>
+            <tr>
+              <td>
+                Table[<a href="webtool-help.html#table">?</a>]
+              </td>
+              <td>
+                Graph[<a href="webtool-help.html#graph">?</a>]
+              </td>
+              <td>
+                Plain text[<a href="webtool-help.html#text">?</a>]
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type=radio name=output value="table" checked>
+              </td>
+              <td>
+                <input type=radio name=output value="graph">
+              </td>
+              <td>
+                <input type=checkbox name=flat value="text">
+              </td>
+            </tr>
+          </table>
+          Input identifier type:<br>
+          <select name="table">
+            <option selected value="guess">Guess..
+            <option value="synonym">Synonym
+            <option value="kegg">KEGG Compund
+            <option value="pathway">KEGG Pathway
+            <option value="formula">Mass Formula
+            <option value="cas">CAS
+            <option value="cid">PubChem Compound
+            <option value="sid">PubChem Substance
+            <option value="cycdb">PlantCyc DB
+            <option value="iupac">IUPAC Name
+            <option value="smiles">SMILES
+            <option value="inchi">InChi
+            <option value="knapsack">KNApSAcK
+            <option value="kappav">KappaV
+            <option value="lipidbank">LipidBank
+            <option value="lipidmaps">LipidMaps
+            <option value="chebi">ChEBI
+            <option value="chemspider">ChemSpider
+          </select>
+          <br>Desired output:<br> 
+          <select name="goal" multiple size=3>
+            <option selected value="synonym">Synonym
+            <option value="kegg">KEGG Compund
+            <option value="pathway">KEGG Pathway
+            <option value="formula">Mass Formula
+            <option value="cas">CAS
+            <option value="cid">PubChem Compound
+            <option value="sid">PubChem Substance
+            <option value="cycdb">PlantCyc DB
+            <option value="iupac">IUPAC Name
+            <option value="smiles">SMILES
+            <option value="inchi">InChi
+            <option value="knapsack">KNApSAcK
+            <option value="kappav">KappaV
+            <option value="lipidbank">LipidBank
+            <option value="lipidmaps">LipidMaps
+            <option value="chebi">ChEBI
+            <option value="chemspider">ChemSpider
+            <option value="ALL">All identifiers
+          </select>
+  
+          <br><input type=submit value=" Go! ">
+        </form>
+      </td>
+      <td>
+        <!-- <textarea name="result" rows=10 cols=60>Result</textarea> -->
+      </td>
+    </tr>
+  </table>
+#+end_html
+#<<features>>
+* Features
+----------------------
+- Incorporate an arbitrary list with any kind of identifier and keep
+  track of which identifier is associated with which.
+  - Keep track of which input sources.
+  - Link identifiers if the input imply that they are the same. For
+    example, if one source links A with B and another B with C then
+    the created database will link A with C too.
+- Import widely used databases such as the main NIST library, the KEGG
+  and PlantCyc compounds files.
+- Query the database and extract one or all related identifiers for any
+  known identifier.
+- Output in different formats, including graphs which can easily be
+  visualized using e.g. [[http://www.cytoscape.org][cytoscape]] or [[http://www.r-project.org][R]] (with [[http://www.bioconductor.org/packages/release/bioc/html/Rgraphviz.html][Rgraphviz]]).
+[[file:test.png]]
+** Applications
+- Merge datasets from different source
+- Perform functional class scoring analysis such as that commonly done
+  for microarrays.
+#<<interested>>
+* Interested?
+--------------
+Check out the [[http://sourceforge.net/projects/metmask][Project page]] for [[http://sourceforge.net/projects/metmask/files][downloads]], [[http://sourceforge.net/projects/metmask/forums][forums]] etc. Or read the
+[[file:manual.html][manual]] for more details.
+
+The forums are also the right place to put bug reports, feature
+request are any other kind comments.
+** Availability
+- GNU Public License (free open source software).
+- Cross-platform (tested and developed for Linux and WinXP)
+- Also accessible from R by using the metmask.db package (depends on
+  an inofficial version of [[http://bioconductor.org/packages/release/bioc/html/AnnotationDbi.html][Bioconductors AnnotationDbi]] which can be
+  found at the [[http://sourceforge.net/projects/metmask/files][MetMask download page]].
+
+** Implementation
+- Written in 100% [[http://www.python.org][Python]] (except for the metmask.db package which is
+  100% R)
+  - Depends on [[http://pywebsvcs.sourceforge.net][SOAPpy]] (which depends of [[http://pypi.python.org/pypi/fpconst/][fpconst]]). Both of which should
+    have come with your python installation in Linux but may have to
+    be installed manually under windows.
+- Uses a local [[http://www.sqlite.org][SQLite]] database 
+- The manual, todo list and this webpage are written in the almighty
+  [[http://orgmode.org][org-mode]]. Using [[http://orgmode.org/worg/org-contrib/babel/org-babel.php][org-babel]].

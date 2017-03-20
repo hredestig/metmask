@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+
+<title>The MetMask Project</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2009-10-22 13:16:01 JST"/>
+<meta name="author" content="henning"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title">The MetMask Project</h1>
+
+
+    <center>
+      <p>
+        <font size="4" face="sans-serif">
+          [ <a href="http://sourceforge.net/projects/metmask/">Project page</a> | <a href="http://sourceforge.net/projects/metmask/files">Download</a> | <a href="http://sourceforge.net/projects/metmask/forums">Forum</a>]
+        </font>
+      </p>
+    </center>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1">Webtool help </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<hr/>
+
+</div>
+
+<div id="outline-container-1.1" class="outline-3">
+<h3 id="sec-1.1"><a name="weak" id="weak"></a>Weak identifiers </h3>
+<div class="outline-text-3" id="text-1.1">
+
+<p>MetMask distinguishes between identifiers that are can be (or are at least somehow meant to) refer to a specific metabolite and identifiers that just label them. Real identifiers are called <i>strong</i> and are used to refer to a specific metabolites or derivative. Other identifiers are called <i>weak</i> and can be annotated to more than one distinctly different metabolites. 
+</p>
+<p>
+Examples of strong indentifiers are synonyms like "Alanine", "L-Alanine" and the KEGG identifier "C00041" because they all (in metabolomics data) refer to the same structure; L-Alanine.
+</p>
+<p>
+Examples of weak identifiers are synonyms like "G" or "sugar" or the mass formula C6H1206. 
+</p></div>
+
+</div>
+
+<div id="outline-container-1.2" class="outline-3">
+<h3 id="sec-1.2"><a name="wild" id="wild"></a>Wild cards </h3>
+<div class="outline-text-3" id="text-1.2">
+
+<p>MetMask provides (very) basic support for using wild cards. A percentage sign (%) equals any number of any characters and an under-score (_) refers to any single character. See documentation of <a href="http://www.sqlite.org/lang_expr.html">SQLite operators</a> for further details.
+</p></div>
+
+</div>
+
+<div id="outline-container-1.3" class="outline-3">
+<h3 id="sec-1.3"><a name="table" id="table"></a>Table output </h3>
+<div class="outline-text-3" id="text-1.3">
+
+<p>Provide output in a table. Each metabolite comes on single row in the table. Note for every identifier type (e.g. synonym) and metabolite (group of metabolites as MetMask understands it) there might be several single identifiers.
+</p></div>
+
+</div>
+
+<div id="outline-container-1.4" class="outline-3">
+<h3 id="sec-1.4"><a name="graph" id="graph"></a>Graph output </h3>
+<div class="outline-text-3" id="text-1.4">
+
+<p>MetMask can generate a connection graph for the selected types of output identifiers and display them. Note that the graph might not be fully connected if not all identifiers types are chosen. Be warned that generating a graph with all identifier types may generate a very large graph. Grey edges are <i>weak</i> identifiers, black are <i>strong</i> identifiers. The edges have the source of evidence annotated to them and node names are the identifier preceded by the first two letters of the identifier type (e.g. synonym alanine becomes sy:alanine). For brevity all identifiers are truncated to the first 15 characters.
+</p>
+<p>
+The figure is a PDF generated by <a href="http://www.bioconductor.org/packages/release/bioc/html/Rgraphviz.html">Rgraphviz</a>. If you choose plain text output the generated  output can easily be imported to <a href="http:www.cytoscape.org">cytoscape</a>.  
+</p></div>
+
+</div>
+
+<div id="outline-container-1.5" class="outline-3">
+<h3 id="sec-1.5"><a name="text" id="text"></a>Plain Text </h3>
+<div class="outline-text-3" id="text-1.5">
+
+<p>Provide output in as plain text instead. For graph output this becomes a table like:
+</p><table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col">from</th><th scope="col">to</th><th scope="col">source</th><th scope="col">weak</th></tr>
+</thead>
+<tbody>
+<tr><td>source node</td><td>target node</td><td>source of evidence</td><td>True for weak identifiers</td></tr>
+</tbody>
+</table>
+
+
+<p>
+fields are tab-delimited.
+</p>
+<p>
+For tables, the output is read like:
+</p><table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col">identifier type 1</th><th scope="col">identifier type 2</th><th scope="col">&hellip;</th></tr>
+</thead>
+<tbody>
+<tr><td>id1  (pipe) id2</td><td>id1 (pipe) id2</td><td>&hellip;</td></tr>
+</tbody>
+</table>
+
+
+<p>
+where the identifier types are tab-separated but the individual identifiers are separated by the pipe (|) character.
+</p></div>
+</div>
+</div>
+<div id="postamble">
+<p class="date"> Date: 2009-10-22 13:16:01 JST</p>
+</div>
+</div>
+</body>
+</html>

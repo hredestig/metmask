@@ -1,0 +1,400 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+
+<title>The MetMask Project</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2009-11-25 17:42:21 JST"/>
+<meta name="author" content="Henning Redestig"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<link REL="SHORTCUT ICON" HREF="http://metmask.sourceforge.net/metmask.ico">
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title"></h1>
+
+
+  <table width="100%" border=0>
+    <tr>
+      <td width="10%">
+        <div id="logo" style="float: center; text-align: left;">
+          <left>
+            <img src="metmask.png"  width=150px alt="Baitworm!">
+          </left>
+        </div>
+      </td>
+      <td width="80%">
+        <div id="subtitle" left; text-align:center; max-width=300px; font-size:10pt>
+          <center>
+            <p>
+            <font size="7" face="sans-serif">
+              The MetMask Project
+            </font>
+            </p>
+            <font size="4" face="sans-serif">
+              [ <a href="http://sourceforge.net/projects/metmask/">Project page</a> | <a href="http://sourceforge.net/projects/metmask/files">Download</a> | <a href="http://sourceforge.net/projects/metmask/forums">Forum</a> | <a href="manual.html">Manual</a> ]
+            </font>
+            <br>
+            <font size="2" face="sans-serif">
+              [ <a href="#try">Try it out</a> | <a href="#features">Features</a> ]
+            </font>
+          </center>
+        </div>
+        </td>
+      <td width="10%">
+      </td>
+    </tr>
+  </table>
+
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><a name="what" id="what"></a>What is MetMask? </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<hr/>
+<p>
+MetMask is a tool for keeping track of metabolite identifiers. It is
+meant to make it easier to convert a set of identifiers of both
+metabolites and analytes to other types of identifiers. This is useful
+for applied day-to-day <a href="http://en.wikipedia.org/wiki/Metabolomics">metabolomics</a> research and can make data
+analysis less of chore.
+</p>
+<p>
+The easiest way to explain what this tool does is by an
+example. Consider the situation where you have a dataset which was
+annotated the following messy identifiers list, in a file called
+ids.txt:
+</p>
+
+
+<pre class="example">1096.1_l-alanine[2tms]
+alanine, dl-
+1881.6_d-(+)-glucose[5tms_1meox]
+glucose_maj_1meox_5tms
+sucrose, d- (8tms)
+</pre>
+
+
+
+
+<p>
+which correspond to entries in your spectra reference file. To
+interpret the data you might want other associated information such as
+the CAS numbers of the parent metabolites. You can do this with your
+own set of scripts, or you could do it using MetMask:
+</p>
+
+
+
+<pre class="src src-sh">metmask &lt; ids.txt -g preferred,cas  -Q -f
+
+</pre>
+
+
+
+
+<pre class="example">
+l-alanine,2899-44-7
+l-alanine,2899-44-7
+beta-d(+)glucose,50-99-7
+beta-d(+)glucose,50-99-7
+sucrose,57-50-1
+</pre>
+
+
+<p>
+querying for the "preferred synonym" and the CAS number. 
+</p></div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><a name="try" id="try"></a>Try it out! </h2>
+<div class="outline-text-2" id="text-2">
+
+
+<hr/>
+<p>
+MetMask is meant to be downloaded and used locally because that way you can change the database to fit your own needs. But of course it is nice to try it out first so below you can query the database that is distributed with the latest version of MetMask.
+</p>
+<p>
+Type in your query as a single identifier, choose which type of identifier you entered (or let MetMask guess), which output identifiers you want and hit go. <b>Warning: no guarantee is given about correctness, use at your own risk.</b>
+  <table>
+    <tr>
+      <td>
+        <form action="http://prime.psc.riken.jp/henning/metmask-cgi.py", method=post>
+          Query:<br><input type=text name="query" size=10><br>
+          <input type=checkbox name="weak" value="no"> Search for weak identifiers too[<a href="webtool-help.html#weak">?</a>]<br>
+          <input type=checkbox name="wild"> Allow wildcards [<a href="webtool-help.html#wild">?</a>]<br>
+          <table>
+            <tr>
+              <td>
+                Table[<a href="webtool-help.html#table">?</a>]
+              </td>
+              <td>
+                Graph[<a href="webtool-help.html#graph">?</a>]
+              </td>
+              <td>
+                Plain text[<a href="webtool-help.html#text">?</a>]
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <input type=radio name=output value="table" checked>
+              </td>
+              <td>
+                <input type=radio name=output value="graph">
+              </td>
+              <td>
+                <input type=checkbox name=flat value="text">
+              </td>
+            </tr>
+          </table>
+          Input identifier type:<br>
+          <select name="table">
+            <option selected value="guess">Guess..
+            <option value="synonym">Synonym
+            <option value="kegg">KEGG Compund
+            <option value="pathway">KEGG Pathway
+            <option value="formula">Mass Formula
+            <option value="cas">CAS
+            <option value="cid">PubChem Compound
+            <option value="sid">PubChem Substance
+            <option value="cycdb">PlantCyc DB
+            <option value="iupac">IUPAC Name
+            <option value="smiles">SMILES
+            <option value="inchi">InChi
+            <option value="knapsack">KNApSAcK
+            <option value="kappav">KappaV
+            <option value="lipidbank">LipidBank
+            <option value="lipidmaps">LipidMaps
+            <option value="chebi">ChEBI
+            <option value="chemspider">ChemSpider
+          </select>
+          <br>Desired output:<br> 
+          <select name="goal" multiple size=3>
+            <option selected value="synonym">Synonym
+            <option value="kegg">KEGG Compund
+            <option value="pathway">KEGG Pathway
+            <option value="formula">Mass Formula
+            <option value="cas">CAS
+            <option value="cid">PubChem Compound
+            <option value="sid">PubChem Substance
+            <option value="cycdb">PlantCyc DB
+            <option value="iupac">IUPAC Name
+            <option value="smiles">SMILES
+            <option value="inchi">InChi
+            <option value="knapsack">KNApSAcK
+            <option value="kappav">KappaV
+            <option value="lipidbank">LipidBank
+            <option value="lipidmaps">LipidMaps
+            <option value="chebi">ChEBI
+            <option value="chemspider">ChemSpider
+            <option value="ALL">All identifiers
+          </select>
+  
+          <br><input type=submit value=" Go! ">
+        </form>
+      </td>
+      <td>
+        <!-- <textarea name="result" rows=10 cols=60>Result</textarea> -->
+      </td>
+    </tr>
+  </table>
+</p></div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><a name="features" id="features"></a>Features </h2>
+<div class="outline-text-2" id="text-3">
+
+
+<hr/>
+<ul>
+<li>
+Incorporate an arbitrary list with any kind of identifier and keep
+track of which identifier is associated with which.
+<ul>
+<li>
+Keep track of which input sources.
+</li>
+<li>
+Link identifiers if the input imply that they are the same. For
+example, if one source links A with B and another B with C then
+the created database will link A with C too.
+</li>
+</ul>
+</li>
+<li>
+Import widely used databases such as the main NIST library, the KEGG
+and PlantCyc compounds files.
+</li>
+<li>
+Query the database and extract one or all related identifiers for any
+known identifier.
+</li>
+<li>
+Output in different formats, including graphs which can easily be
+visualized using e.g. <a href="http://www.cytoscape.org">cytoscape</a> or <a href="http://www.r-project.org">R</a> (with <a href="http://www.bioconductor.org/packages/release/bioc/html/Rgraphviz.html">Rgraphviz</a>).
+</li>
+</ul>
+
+<p><img src="test.png"  alt="test.png" />
+</p>
+</div>
+
+<div id="outline-container-3.1" class="outline-3">
+<h3 id="sec-3.1">Applications </h3>
+<div class="outline-text-3" id="text-3.1">
+
+<ul>
+<li>
+Merge datasets from different source
+</li>
+<li>
+Perform functional class scoring analysis such as that commonly done
+for microarrays.
+</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><a name="interested" id="interested"></a>Interested? </h2>
+<div class="outline-text-2" id="text-4">
+
+
+<hr/>
+<p>
+Check out the <a href="http://sourceforge.net/projects/metmask">Project page</a> for <a href="http://sourceforge.net/projects/metmask/files">downloads</a>, <a href="http://sourceforge.net/projects/metmask/forums">forums</a> etc. Or read the
+<a href="manual.html">manual</a> for more details.
+</p>
+<p>
+The forums are also the right place to put bug reports, feature
+request are any other kind comments.
+</p>
+</div>
+
+<div id="outline-container-4.1" class="outline-3">
+<h3 id="sec-4.1">Availability </h3>
+<div class="outline-text-3" id="text-4.1">
+
+<ul>
+<li>
+GNU Public License (free open source software).
+</li>
+<li>
+Cross-platform (tested and developed for Linux and WinXP)
+</li>
+<li>
+Also accessible from R by using the metmask.db package (depends on
+an inofficial version of <a href="http://bioconductor.org/packages/release/bioc/html/AnnotationDbi.html">Bioconductors AnnotationDbi</a> which can be
+found at the <a href="http://sourceforge.net/projects/metmask/files">MetMask download page</a>.
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-4.2" class="outline-3">
+<h3 id="sec-4.2">Implementation </h3>
+<div class="outline-text-3" id="text-4.2">
+
+<ul>
+<li>
+Written in 100% <a href="http://www.python.org">Python</a> (except for the metmask.db package which is
+100% R)
+<ul>
+<li>
+Depends on <a href="http://pywebsvcs.sourceforge.net">SOAPpy</a> (which depends of <a href="http://pypi.python.org/pypi/fpconst/">fpconst</a>). Both of which should
+have come with your python installation in Linux but may have to
+be installed manually under windows.
+</li>
+</ul>
+</li>
+<li>
+Uses a local <a href="http://www.sqlite.org">SQLite</a> database 
+</li>
+<li>
+The manual, todo list and this webpage are written in the almighty
+<a href="http://orgmode.org">org-mode</a>. Using <a href="http://orgmode.org/worg/org-contrib/babel/org-babel.php">org-babel</a>.
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: Henning Redestig
+<a href="mailto:henning_atmark_pscDOTrikenDOTjp">&lt;henning_atmark_pscDOTrikenDOTjp&gt;</a>
+</p>
+<p class="date"> Date: 2009-11-25 17:42:21 JST</p>
+<p class="creator">HTML generated by org-mode 6.32trans in emacs 23</p>
+</div>
+</div>
+</body>
+</html>

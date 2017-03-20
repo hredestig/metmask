@@ -1,0 +1,627 @@
+#-*- org -*-
+#+TITLE: Milestones, tasks, bugs etc
+#+AUTHOR: Henning Redestig
+#+EMAIL: henningnearpscpointrikenpointjp
+* Version numbers
+Version numbers are given as x.y.z. 
+- x :: Major stable and feature complete release
+- y :: Minor stable release with changes to the database scheme
+       compared to previous y - 1. Has all critical and less important
+       bugs fixed.
+- z :: Sub-minor stable release with bugfixes, minor changes and
+       potentially small feature changes. Works with database from z
+       - 1 as well.  Has all critical bugs fixed.
+* Version 1.0.0
+** write unit tests
+check the docutils package
+
+- Check 'weak' and 'nevermerge' as well as simple import and querying
+  - Import Takano's list 
+  - Going through Takano's list and make sure that that nothing has been lost
+  - Only one mask is retrieved per entry
+- Export function, KEGG and drop an id
+  - From an empty db, import Water 
+  - Make sure that you get the water entry back
+  - Drop the obtained id 
+  - Query again and make sure you get nothing
+
+** weak table
+if a table is set to be weak it should be permanently weak
+** External
+Make it possible to choose which external database to query
+** input true visualization -- database redesign
+annotate each association with a key that defines which entry in the
+input it came from, this would allow for /proper/ graph visualization
+of a mask. But this would mean storing multiple connections to the
+same _id for the same source, potentially at different confidence
+levels, but this is not possible with current constraint
+tab,_id,source. So, this requires a lot of database redesign. Need to
+adopts a more normalized database strucure like we had before:
+#+CAPTION: tab: UNIQUE tab, qc 
+| _id | tab | weak | qc | assid |
+|-----+-----+------+----+-------|
+|   1 | x   | no   |  0 |     1 |
+|   1 | x   | yes  |  1 |     2 |
+#+CAPTION: associations
+| assid | source | confidence | entry |
+|-------+--------+------------+-------|
+|     1 | a      |          1 |     1 |
+|     2 | a      |          2 |     2 |
+but this design got terribly slow so implementation is not trivial
+** Migrate fom parsers to use of openbabel
+Write a good parsers for one format, eg sdf and then use openbabel to
+convert to all files to that format before import
+* TODO Version 0.5.4
+** TODO Better and more intuitive querying
+redesign simpleQuery to take a mask as an argument instead and then make use of the parsers when interpreting input from the command line. This would guarantee that the same input is given
+
+* TODO Version 0.5.3
+** TODO multiple types sources of cycdb
+the 'cycdb' name is not good because it is not possible to use different cyc databases, every import should specify a new one (e.g. the 'source' of the import)
+** TODO smarter default search tables
+like ANY and use this default if no matching tables are found
+** TODO better regexps
+when defining a new table, also add a regexp to match its input 
+** TODO handle updated config files 
+dies badly if using config file for old version
+** TODO cant read mac style file endings
+** TODO prettier out-put for stats
+* DONE Version 0.5.2
+  CLOSED: [2010-02-04 Thu 10:30]
+** DONE critical fix in chebi parser
+   CLOSED: [2010-02-04 Thu 10:30]
+* DONE Version 0.5.1
+  CLOSED: [2009-11-11 Wed 18:04]
+** DONE Support for read only databases
+   CLOSED: [2009-11-04 Wed 12:16]
+* DONE Version 0.5.0
+  CLOSED: [2009-11-04 Wed 12:16]
+** DONE regexp in query
+   CLOSED: [2009-10-19 Mon 16:11]
+simple wildcards at least.
+** DONE keep group id on input
+   CLOSED: [2009-10-19 Mon 18:50]
+add info on each association so that it is known which /group upon import/ that each import came from. this way one can make more accurate connection graphs. 
+** DONE better connection graphs
+   CLOSED: [2009-10-19 Mon 20:00]
+should reflect import group and not only master identifier
+** DONE ability to drop single identifiers
+   CLOSED: [2009-10-20 Tue 09:32]
+now possible with dropIdentifiers. 
+* DONE Version 0.4.0
+  CLOSED: [2009-08-19 Wed 14:02]
+** DONE connection graph
+   CLOSED: [2009-07-31 Fri 11:47]
+- Given a certain identifier, get all masks that carry that
+  identifer. 
+- For each mask, get identifiers coming from a tab and create a
+  bipartite graph which connects tab with all accompanying identifiers
+
+Implemented as outputting a graph instead of just a flat file.
+** DONE more flexible output
+   CLOSED: [2009-07-31 Fri 11:47]
+Output mode is not chosen via goal anymore but via a separate option
+that can be graph, flat, or mask. Tables can be chosen as both ALL or
+negatively from ALL by prefixing with '~'
+** DONE GC/LC check database function
+   CLOSED: [2009-07-14 Tue 22:32]
+use chebi to traverse over all masks, checking all pairs if they are
+the same from a GC/LC-MS point of view and if, so merge them. With
+1200 compounds this would take a while (1199 queries) should be fairly
+easy to realize, see http://www.ebi.ac.uk/chebi/webServices.do. Rules
+for similar are also pretty easy e.g. Enantiomers/Stereo isomers.
+Rather esoterical function though :)
+       
+lots of work and not overly useful.
+
+** DONE update manuals
+   CLOSED: [2009-08-11 Tue 16:19]
+** DONE one identifier
+   CLOSED: [2009-06-18 Thu 11:44]
+make it possible to only get /one/ identfier, if I ask for KEGG, it
+would be convenient to not have to get all identifiers.
+
+Added the -f switch to control this behavior.
+** DONE quotes
+   CLOSED: [2009-07-10 Fri 11:51]
+currently very safe quoting is done. could we somehow avoid having to
+quote so much? parsing would become a lot easier if this was not
+necessary and in most cases it /is/ useless. To a certain extent fixed
+with the introduction of the -Q switch which supprresses all quoting
+** DONE populate or boost mode
+   CLOSED: [2009-07-11 Sat 19:48]
+current workflow is:
+
+1. Load all sources you have
+2. Potentially expand with annotations from eg KEGG
+
+a problem with loading from large resources such as NIST, it is
+infeasible/unnecessary to load everything, mainly because i already
+defined the interesting 'space' and loading too much clutters and
+increases the risk of irrelevant cross-matches. A simple solution to
+this would be to instead follow:
+
+1. Load all sources you have
+2. Load all additional sources you are interested in 'boost' mode
+   which does not add completely new masks. This way even very large
+   databases can 'imported'. 
+   1. Some parsers are only available in boost mode, such as
+      chemspider.
+
+** DONE formula
+   CLOSED: [2009-07-14 Tue 22:28]
+import formula as a weak table from all parsers where it is supported
+- kegg
+- cyc
+- nist
+- ?
+*** DONE update mask
+    CLOSED: [2009-07-31 Fri 11:48]
+formulas should only be of length one, otherwise complain, add this a
+condition checking if two masks are compatible or not
+** DONE implement parsers
+   CLOSED: [2009-07-14 Tue 22:28]
+- chebi
+** DONE An R-package
+   CLOSED: [2009-02-18 Wed 19:10]
+interface metmask from R directly. Perhaps using RSPython. Hack would
+be to use system calls but that would probably be better than nothing.
+Using system calls in library metrik now.
+
+** DONE new parsers
+   CLOSED: [2009-03-12 Thu 00:01]
+metlin and a generic parser for any compounds.dat file from a Cyc
+database
+
+metlin database is now too big (over 24000 compounds) for casual
+incorporation. aracycdb was replace with more general cycdb file.
+** DONE make overlap user-definable
+   CLOSED: [2009-07-17 Fri 15:51]
+it is a global in mask. 
+* DONE Version 0.3.1
+  CLOSED: [2009-06-18 Thu 11:40]
+** DONE Fix critical bugs
+   CLOSED: [2009-06-18 Thu 11:40]
+* DONE Version 0.3.0
+  CLOSED: [2009-06-18 Thu 11:40]
+** DONE Annotations
+   CLOSED: [2009-05-25 Mon 12:31]
+It would be good to have be able to keep an ontology in the database
+as well. It should not depend on specific architecture since
+requirements for different annotation schemes is bound to
+vary. Functionality:
+- Load an ontology and give it a name.
+  - Load from a local mapman like file
+  - Load from an online resource such as KEGG PATHWAY
+- Delete an ontology 
+- Export annotations for a certain identifier and ontology
+  - should ideally work as all other querying i.e.
+    metmask -a alanine -g myontology-code,myontology-desc
+    should return all relevant associations eg
+    '"1"|"1.1"','"AminoAcids"|"Ala-Family"'
+    This could then easily be converted to a sensible data structure
+    in R. 
+
+Least denominator for an ontology:
+- Has a name eg 'kegg' or 'myontology'
+- Contains bins/groups
+  - has a code and a human readable name
+eg 
+| Key | Code | Name       | Ontology |
+|-----+------+------------+----------|
+| 1   |    1 | AminoAcids | RiceGuy  |
+| 2   |  1.1 | Ala-Family | RiceGuy  |
+where only 'Key' is uniq. This style would be ok for both KEGG, Mapman
+and Cyc style annotations. Pathway structure is not kept and must be
+accessed with the original databases.
+
+This differs from the ordinary indentifier
+tables because the each identifier must have a description to make it
+usable. Associations are also different: 
+| mmid | key |
+|------+-----|
+| 1    | 2   |
+where the normal 'assocation' field is not needed and no fields are
+unique. 
+
+The ontology system therefore becomes quite independent and cannot be
+handled in the same way as normal identifiers mainly because it must
+- not be used for merging / pruning masks etc
+- must be non-uniq.
+*** DONE Bin names
+    CLOSED: [2009-05-25 Mon 14:56]
+Bin names can not be exported because indentifiers can be connected
+within a mask. Only way is to paste the codes together before
+attaching them to the mask which is inconvenient becuase they then
+break the common pattern for output. This is makes name field
+useless.. must be fixed. Has one solution now with pasting. A hack at
+least it  doesn't disturb anything else.
+*** Implementations
+
+**** DONE Tables
+    CLOSED: [2009-05-25 Mon 12:31]
+created at startup
+- ontologies
+  - defines which ontologies we have SKIPPED, work with the sources table instead
+- bins 
+  - which holds bin descriptions
+- mappings
+  - which connects mmids with keys
+**** DONE Import
+     CLOSED: [2009-05-25 Mon 13:21]
+- Local
+  - require mapman like formatting 
+  - metmask -i ontologyFile -p onto
+    - only needs a new parser: _onto.py 
+      - creates new tables if mentioned but identifers are not mapped,
+        this opens for the possibility to query external sources upon
+        insert if user is trying to map something that is unknown
+      - header must match specific pattern
+- External
+  - KEGG
+    - Download and reformat to match local format, then do as local
+  - Cyc
+    - Download and reformat to match local format, then do as local
+- Associated name
+  - must not be only numbers (then the drop function knows that any
+    non-number should be interpreted as an ontology)
+**** DONE Drop
+    CLOSED: [2009-05-25 Mon 12:31]
+1. access by metmask -r ontology
+2. Get all keys associated with 'ontology'
+3. Clear all rows which has Ontology == 'ontology'
+4. Clear all bin-association which has collected keys
+**** DONE Query
+    CLOSED: [2009-05-25 Mon 12:31]
+1. access by 
+   1. [ ] metmask -a alanine -g cas,myonto-code,myonto-desc
+      1. A draw back is that it is somehow non-intutive
+   2. [X] metmask -a alanine -g cas,myonto and always give both code
+      and name.
+   3. Use simpleQuery?
+      1. [ ] directly is tricky because this uses the getMask function
+         which uses the fatboy table. And fatboy is filled from the
+         id-tables which are unsuitable for storing annotations.
+      2. [X] Adapt simpleQuery to act differently on tables matching a
+         certain pattern eg *-code, *-desc or matching an ontology
+         name (in which case ontology names must be forbidden table
+         names and vice versa)
+      3. [ ] Make a new query function?
+	 1. Need to complicate the interface.
+	 2. Messy to make it flexible. Want to be able to create a
+	    mapping using /any/ identifier.
+2. Get the relevant mask
+3. Check if any table was an ontology
+   1. If so, add the codes and descriptions as if they were normal
+      identifiers
+4. Print out as normal
+*** DONE Setmask and dropmask
+    CLOSED: [2009-05-26 Tue 10:54] Setting and dropping causes mmid to
+change so any such actions will ruin the ontology for affected
+masks. Fixed with proper usage of fuseInMapping
+** DONE Export to Bioconductor
+   CLOSED: [2009-06-03 Wed 13:27]
+Bioconductor makes strong use of the annotation packages and to obtain
+access to the geneset testing infrastucture it would be convenient to
+have an export function from a metmask database to a 'metmask.db'
+style annotation package. 
+
+Main conceptual difference to other annotation packages is that the
+other all have a 'root' identifier which denots what we are trying to
+annotate. In metabolomics there is no obvious such root since there
+are no arrays etc. The closest we get is the standard library but
+these differ between laboratories. And even within labs we often have
+multiple ID's for same metabolite but no automated way of merging
+them. 
+** DONE Interface
+    CLOSED: [2009-06-03 Wed 10:01]
+- User constructs a desired metmask database by importing own library
+  etc.
+- Install metmask.db library, and start querying your database
+** DONE Change to _id instead of mmid
+   CLOSED: [2009-06-03 Wed 11:53]
+to conform with the other annotaiton packages
+** DONE Drop the associations table
+   CLOSED: [2009-06-06 Sat 17:09]
+and integrate that info into the id-tables
+
+will the remove the need for fatboy as well? yep!
+** DONE Ambigous tables
+   CLOSED: [2009-06-06 Sat 17:09]
+completely new solution.. quick and dirty but works!
+
+Would be useful for incorporating annotations but it in a sense may
+also be out-of-scope. Annotations do not *identify* metabolites, just
+decorate them. Such decorations could however be useful also to
+collect pruned identifiers so that the user can be warned when he is
+querying for identifiers that are known to be related to different
+metabolites.
+- The fact the metmask can not hold properties about metabolites
+  seems an unnecessary weakness. 
+Questions for solving this:
+- Will there be any conflicts denoting all id-tables to have composite
+  key with mmid so that ambiguous id's become allowed?
+- Then, is it enough to import ambiguous source as 'weak'?
+Advantages would be possibility
+- Handle chemical properties such as Masses, RI by denoting them as
+  weak upon import. 
+
+*** DONE Original connections
+   CLOSED: [2009-06-06 Sat 17:19]
+For the sake of visualiation, would it be interesting to be able to
+draw a network with "connections" as they were defined in the original
+sources? This can not be done now because we do not keep "pruned"
+identifiers. An alternative would therefore be to somehow store
+deleted identifiers so that they could be kept and queried but
+annotated as non-true links. Eg do this by never deleting anything but
+instead change the link-code to eg 666 indicating 'wrong'. Then, when
+you do 'getMask' you can opt to either include 'wrong' connections or
+not.
+
+** DONE Regexps
+   CLOSED: [2009-06-08 Mon 16:18]
+move TABLECATALOG to the database instead.
+
+** DONE Don't delete only weaken. 
+   CLOSED: [2009-06-09 Tue 12:15]
+
+Fix the del / weak
+[[file:~/dec/proj/metmask/sf/trunk/metmask/dbi.py::nevermerge%20we%20could%20probably%20use%20the%20weakenIdentifier%20again][here]]
+** DONE Fix Takanos table by
+   CLOSED: [2009-06-10 Wed 12:12]
+- Copy to calc sheet and set under SVN control
+- Make a new file that has the ranges defined from the original file
+- Export to csv and write script that
+  - makes separators uniform
+  - ...
+- Import but don't use the nevermerge
+* DONE Version 0.2.0
+** Version 0.2.1
+*** DONE Fix the windows HOME variable issue
+    CLOSED: [2009-05-20 Wed 17:00]
+fixed, windows version doesn't use HOME anymore but dumps cfg file in
+the same place as the database file
+** DONE `dropMask`
+   CLOSED: [2009-03-11 Wed 23:45] 
+
+clear the associations table as well to save space.  makes building
+the db considerably much slower but saves some space.  this change was
+undone again as space saving seems like a small advantage compared to
+having a speedy import
+
+** DONE Documentation
+   CLOSED: [2009-02-05 Thu 16:46]
+the individual functions/objects/modules properly
+** DONE add integrity control
+   CLOSED: [2009-03-11 Wed 23:49]
+make sure that a parser acutally can parse the given file, as for now
+it swallows everything, potentially corrupting the database. simple
+does some basic checking now.
+
+** DONE re-write the parser module
+   CLOSED: [2009-03-09 Mon 10:07]
+so that it uses parser class and that the parser method is an
+attribute of that object. this makes writing new parsers easier and
+looks a lot tidier
+** DONE export function
+   CLOSED: [2009-02-23 Mon 10:25]
+need this for getting all info from the database to a readable format
+
+** DONE fix the evidence trace bug
+   CLOSED: [2009-02-08 Sun 12:35]
+it seems that upon merging, the additional evidence do not get saved
+assid on fatboy was a primary key..
+
+** DONE add basic control for metabolite identifiers
+   CLOSED: [2009-02-03 Tue 12:25]
+
+** DONE parse.simple can not handle strings like '"x",,"x"'
+   CLOSED: [2009-02-03 Tue 12:24]
+
+** DONE Improve input query
+   CLOSED: [2009-02-03 Tue 12:31] so that many identifiers can be used
+   to query for the same compound
+
+** DONE fix the time problem in query		:CANCELED:
+   CLOSED: [2009-02-05 Thu 10:05]
+not necessary as the query function only makes one query before
+finishing, next time several actions has taken place in between so it
+is unlikely that it would be faster than 3 seconds.
+** DONE online checkup
+   CLOSED: [2009-02-04 Wed 21:05] When I request a KEGG identifier
+from a known mask which doesn't have a KEGG identifier it would be
+good if metmask could try a couple of online resources to find it and
+if does so, add it to its db.  Now pubchem and KEGG is queried and if
+the search term is found, it is added to the db 
+** DONE avoid meaningless online checks
+   CLOSED: [2009-02-07 Sat 18:29]
+don't query pubmed for identifiers in tables that you won't find there
+** DONE alwaysmerge/weakTable
+   CLOSED: [2009-02-21 Sat 15:34]
+add a alwaysmerge confidence code for use with supervised
+imports. This is a bad idea because that makes that mask extremely
+sticky. Anything that overlaps with a alwaysmerge mask will get
+fused. Perhaps better to implement this as a strongTable tag...
+
+concept of weak table should be removed and made to a confidence level
+tag. then, add in resolve that if overlap where either connection is
+weak doesn't count.
+** DONE use of shlex does not work as intended
+   CLOSED: [2009-02-08 Sun 19:41]
+having no string at all as missing value is not working
+[[file:~/dec/proj/metmask/sf/metmask/parse.py::splitter%20whitespace%20sep1][file:~/dec/proj/metmask/sf/metmask/parse.py::splitter whitespace sep1]]
+not so clean solution but works.
+** DONE input to metmask should make use of [[file:~/dec/proj/metmask/sf/metmask/parse.py::splitter%20whitespace%20sep1][fixLine]]
+   CLOSED: [2009-02-23 Mon 10:36]
+so that the input line can be quoted
+** DONE preferred
+   CLOSED: [2009-02-18 Wed 19:07]
+need a new indentifier called "preferred" which shall be a short
+unique and semi-understandable string. Dump the 'compound' column in the mmid
+** DONE preferred again
+   CLOSED: [2009-02-20 Fri 12:52]
+- preferred is unique in mmid *
+- make a dropPreferred function so that existing preferred can be
+  dropped before new ones are added
+- if we create a new mask which has no preferred, create a dummy
+  preferred just as usual
+
+This way we always get exactly one preferred per mask.
+
+** DONE kegg online
+   CLOSED: [2009-03-14 Sat 17:13]
+write a online checkup thingy for kegg as well
+** DONE Fix files
+   CLOSED: [2009-05-20 Wed 11:48] default database in an accessible
+location, windows installer etc. Now fixed with installer.nsi script
+which makes an python included installer file. Basic building for windows is:
+- run python setup-win.py py2exe on a Windows machine
+- unzip library.zip in put the contents in a directory named 'library.zip'
+- add metmask/data to the directory library.zip
+- run makensis installer.nsi
+* Ideas, wishes, thoughts
+** writer							       :WISH:
+make a writer for every parser so that you can output in that format as well.. or make make a new function in each parser called "output" 
+
+"process" basically takes a line and makes a mask, "output" should be the reverse.
+** Cyc file name						       :WISH:
+changes often and it would be good with somekind of auto-update
+function.
+*** DONE sorbitol bug
+   CLOSED: [2009-06-11 Thu 10:35]
+unconfirmed.
+
+try doing `metmask -a sorbitol -e -F` crash reports something like:
+mask.py:464: UnicodeWarning: Unicode equal comparison failed to convert both arguments to Unicode - interpreting them as being unequal
+  identifiers = filter(lambda x: x in self.getIdentifiers(tab), 
+the second time it runs, the first time it dies with a different error
+*** DONE import broken
+   CLOSED: [2009-05-20 Wed 18:05]
+not even takano.csv loads anymore. False alarm, pay attention to the
+NA string. Perhaps assume NA if it doesn't match instead of moaning?
+But this would hide problems and mal-formatted files, better that the
+user sees that the file is poorly formatted. 
+Fixed with modified NA-string that now swallows 'NA' 'na' '-' '--' '' etc
+
+*** DONE preferred
+import broken when specifying preferred explicitly
+*** DONE external queries broken?
+    CLOSED: [2009-07-23 Thu 15:33]
+when querying external data with the -u switch the result does not
+seem to get saved.
+
+Result gets saved but most info is set to weak and therefor doesnt
+show up so easily.
+*** DONE onto kegg
+    CLOSED: [2009-06-23 Tue 09:51]
+lots of messups after onto kegg import, eg tyrosine and
+syringaldehyde, shikimate? KEGG lists SID not CID
+*** DONE pathway associations
+    CLOSED: [2009-07-15 Wed 09:12]
+kegg pathways are not imported as they should, e.g. c00064 is not
+annotated to all pathways mentioned in the compounds file. E.g. 00230
+should be there but nothing gets annotated to that pathway.
+
+'peptide compound' is also a valid string after kegg entry. 
+
+** different clustering						       :WISH:
+Sometimes, peak specific ambiguity for some platforms exists, such as,
+it is knownn that the compound is a pyranose but unsure
+which. Currently, creating this kind of masks is not possible but
+would be desirable.
+
+This could be a 'meta-mask' which groups other masks. Queries matching
+mulitple entries would then also search for hits in the meta-mask
+table.
+** stable identifier						       :IDEA:
+One can not work with the _id except for temporary purposes. 'Preferred'
+is clearly better but can also change, is there anyway to obtain a
+more stable identifier? 
+
+This is the same as the point of how decide /which metabolite/ is
+behind a certain mask. 
+** More parsers							       :WISH:
+|    | Name       | DB               | Boost | Parser | Status  |
+|----+------------+------------------+-------+--------+---------|
+|  1 | *Cyc       | Any Cyc DB       | Yes   | cycdb  | Working |
+|  2 | Cyc        | Any Cyc dumpfile | Yes   | cyc    | Working |
+|  3 | KEGG       | genome.jp        | Yes   | kegg   | Working |
+|  4 | MPIMP      | CSB.DB           | Yes   | mpimp  | Working |
+|  5 | NIST       | NIST DB          | Yes   | nist   | Working |
+|  6 | RIKEN      | prime            | Yes   | riken  | Working |
+|  7 | Simple     | Local flatfile   | Yes   | simple | Working |
+|  8 | Chemspider | chemspider.com   | Only  |        | Wish    |
+|  9 | Chebi      | chebi            | Only  | chebi  | Working |
+| 10 | Babel      |                  |       |        | Wish    |
+#+TBLFM: $1=vlen(@I$1..0);EN
+** QC								       :WISH:
+Check if a mask actually contains two different metabolites, could be
+done by
+- fill mask with chebi identifiers, then check if they all are of the
+  is-a relationship
+
+half way not an issue because we have formula criteria
+** weak in simple						       :WISH:
+it is not possible to have a fully weak table in simple import, should
+be fixed
+* Bugs / Warnings
+** Critical
+*** TODO cant query for identifiers with double single quotes
+eg adenosine 3',5'-cyclic monophosphate
+*** DONE chebi and associations
+    CLOSED: [2009-11-19 Thu 11:16]
+chebi identifiers are added all at once, which means that they all get the same association number, and hence are all interconnected. each id should however get their own ass number to avoid this. Solved as suggested.
+*** DONE windows new db
+    CLOSED: [2009-11-11 Wed 18:04]
+some windows boxes cant do os.mknod, the should use open instead to touch a file
+*** DONE SDF import malfunc
+    CLOSED: [2009-11-04 Wed 12:17]
+*** DONE rstrip on nonetype in simple import
+    CLOSED: [2009-07-31 Fri 11:46]
+*** DONE Load KEGG/Cyc from local and remote files
+   CLOSED: [2009-05-25 Mon 12:33]
+Kegg doesn't work at all. Regardless platform. Problem most likely in
+_kegg.py. Works on Linux now, closed until re-confirmed
+*** DONE Loading cyc
+    CLOSED: [2009-05-20 Wed 19:12] doesn't work. Fixed, problem was
+that synonyms should be 'weak' and other problem with how fixLine take
+care of # and ' (these must be quoted)
+**** DONE still doesn't work on windows
+     CLOSED: [2009-06-11 Thu 10:34]
+works now
+**** DONE is exteremly slow
+     CLOSED: [2009-05-20 Wed 19:11]
+** Less important
+*** DONE New database in windows
+Metmask barfs if the database is not found on windows. Should just
+create a new one instead
+*** DONE Readonly
+    CLOSED: [2009-07-31 Fri 11:34]
+Metmask dies ungracefully if it tries to edit a readonly database. It
+should give some reasonable warning instead. Maybe even create a local
+database? It also dies even if -F is not specified. Why? No editing is
+being done?
+fixed.
+*** DONE Depracation BaseException.message
+   CLOSED: [2009-06-11 Thu 10:33]
+has been deparacted with Python2.6. Warning appears everytime the
+query module is used. 
+*** DONE bad url
+die gracefully when a url is wrong
+* metmask.db
+** DONE Version 0.0.3
+   CLOSED: [2009-07-31 Fri 10:18]
+*** DONE New db file
+    CLOSED: [2009-07-31 Fri 11:49]
+Final new chebi synched db with MPIMP library included
+*** DONE Submit to bioconductor
+    CLOSED: [2009-07-31 Fri 10:18]
+** DONE Version 0.0.2
+*** DONE Make a first working version
+   CLOSED: [2009-07-10 Fri 16:56]
+Version 0.0.2 is up and running.
+*** DONE Implementation
+   CLOSED: [2009-06-03 Wed 11:52]
+AnnotationDbi works fairly well with the current db scheme so only
+necessary to add functionality to AnnotationDbi in order to create the
+right objects

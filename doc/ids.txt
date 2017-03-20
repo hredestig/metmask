@@ -1,0 +1,5 @@
+1096.1_l-alanine[2tms]
+alanine, dl-
+1881.6_d-(+)-glucose[5tms_1meox]
+glucose_maj_1meox_5tms
+sucrose, d- (8tms)
