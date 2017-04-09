@@ -7,9 +7,8 @@ Copyright (C) Henning Redestig
 See COPYING.txt for licensing details.
 """
 
-#import parse
 __all__ = ['dbi', 'parse', 'mask', 'query']
-__version__ = '0.5.3'
+__version__ = '0.5.4'
 
 WEAK_CONF = 2
 """ reserved confidence index for weak associations  """

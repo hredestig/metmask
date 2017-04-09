@@ -2,3 +2,5 @@
 *.pyc
 *.Rhistory
 *egg-info
+*db-journal
+.idea/
