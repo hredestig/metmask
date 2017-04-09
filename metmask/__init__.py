@@ -14,5 +14,3 @@ WEAK_CONF = 2
 """ reserved confidence index for weak associations  """
 NEVERMERGE_CONF = 1
 """ reserved confidence index for nevermerge associations  """
-
-

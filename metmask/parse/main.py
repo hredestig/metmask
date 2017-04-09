@@ -1,6 +1,4 @@
 import httplib
-import pdb
-import re
 import shlex
 import socket
 import urllib2
@@ -10,22 +8,28 @@ from metmask.parse import *
 
 socket.setdefaulttimeout(10)
 
-class parserError(Exception) :
+
+class parserError(Exception):
     """ raised when no suitable parser could be found or the parser had problems """
+
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
-        return(repr(self.value))
+        return (repr(self.value))
 
 
-class fileFormatError(Exception) :
+class fileFormatError(Exception):
     """ raised when the file to parse does not look like expected"""
+
     def __init__(self, value):
         self.value = value
+
     def __str__(self):
-        return(repr(self.value))
-        
-def fixLine(ll, sep) :
+        return (repr(self.value))
+
+
+def fixLine(ll, sep):
     """turn a delimited string in to a list
     with appropriate tokens
     eg '"a","2,2"' -> ['a', '2,2'] 
@@ -46,28 +50,29 @@ def fixLine(ll, sep) :
     splitter.whitespace_split = True
     res = list(splitter)
     # undo any damage we did
-    res = map(lambda x:re.sub(sep + ' ' + \
-                                  sep, sep + \
-                                  sep, x), res)
-    return(res)
+    res = map(lambda x: re.sub(sep + ' ' + \
+                               sep, sep + \
+                               sep, x), res)
+    return (res)
+
 
 class importer:
     """A class for importing information to the metmask database
     """
 
-    def __init__ (self, mm, \
-                      parsertype, fileobj, source, \
-                      confidence='good',\
-                      sep1=",", sep2="|", \
-                      na="[nN][Aa]",\
-                      resolve=True,\
-                      boost=False,\
-                      master='unknown',\
-                      token=None):
-        if not re.match("_", parsertype) :
+    def __init__(self, mm, \
+                 parsertype, fileobj, source, \
+                 confidence='good', \
+                 sep1=",", sep2="|", \
+                 na="[nN][Aa]", \
+                 resolve=True, \
+                 boost=False, \
+                 master='unknown', \
+                 token=None):
+        if not re.match("_", parsertype):
             parsertype = "_" + parsertype
 
-        if not parsertype in metmask.parse.PARSERS :
+        if not parsertype in metmask.parse.PARSERS:
             raise parserError, "Unknown parser"
 
         self.token = token
@@ -98,14 +103,14 @@ class importer:
         """string describing the confidence"""
         self.confid = mm.addConf(confidence)
         """the confidenceid as defined by the db"""
-        
+
         self.fileobj = fileobj
         # if we didnt get anything (just True), assume we loop over
         # all masks in the database
-        if self.fileobj == True :
+        if self.fileobj == True:
             self.fileobj = iter(mm.getAllMmids())
         # if we only got a string, assume it was a filename
-        if not 'next' in dir(self.fileobj) :
+        if not 'next' in dir(self.fileobj):
             self.fileobj = open(self.fileobj, 'r')
         """eventually an iterator giving the input"""
 
@@ -115,7 +120,7 @@ class importer:
         # the main action now happens with in 
         # importer.<_parser>.parser.process
         st = "self.parser = metmask.parse." + parsertype + ".parser(self)"
-        exec st in locals(), globals() 
+        exec st in locals(), globals()
 
         self.sourceid = mm.addSource(source, master=self.master)
         """the sourceid as defined by the db"""
@@ -126,27 +131,27 @@ class importer:
             self.mm.createIdTable(self.master)
         self.mm.connection.commit()
 
-    def __del__(self) :
+    def __del__(self):
         if 'close' in dir(self.fileobj):
             self.fileobj.close()
         self.mm.connection.commit()
 
-    def getLine(self, comment=None) :
+    def getLine(self, comment=None):
         """safe way to get a new line"""
         try:
             ll = self.fileobj.next()
             self.lineNum = self.lineNum + 1
-            if comment :
-                while str(ll).startswith(comment) :
+            if comment:
+                while str(ll).startswith(comment):
                     ll = self.fileobj.next()
                     self.lineNum = self.lineNum + 1
-            if not re.match('\s', str(ll)) :
-                return(str(ll).strip())
-            return(str(ll))
+            if not re.match('\s', str(ll)):
+                return (str(ll).strip())
+            return (str(ll))
         except StopIteration:
-            return('')
+            return ('')
 
-    def setMask(self, ma, setass=True) :
+    def setMask(self, ma, setass=True):
         """ set mask (ma) considering the settings of this parser
         Parameters:
         -`ma`: the mask to set
@@ -155,15 +160,14 @@ class importer:
         goAhead = True
         if self.boost:
             mmids = self.mm.getMmid(ma)
-            if not mmids :
+            if not mmids:
                 goAhead = False
         if goAhead:
-            if setass :
+            if setass:
                 ma.setAllAssoc(self.mm.addAss())
             self.nentries = self.nentries + self.mm.setMask(ma, self.resolve)
 
-
-    def urlSafe (self, string) :
+    def urlSafe(self, string):
         """make string safe(r) for use as a url
         """
         string = string.replace("%", "%25")
@@ -182,23 +186,23 @@ class importer:
         string = string.replace("<", "%3C")
         string = string.replace(">", "%3E")
         string = string.replace("#", "%23")
-        return(string)
+        return (string)
 
-    def getUrl (self, url):
+    def getUrl(self, url):
         """get contents from url but do safely timeout if no response and
         ignore junk response
         """
-        try :
-            return(urllib2.urlopen(url))
+        try:
+            return (urllib2.urlopen(url))
         except httplib.BadStatusLine, inst:
-            if self.mm.debug :
+            if self.mm.debug:
                 print "#COMMENT bad response skipping"
-                return(None)
+                return (None)
         except urllib2.URLError, inst:
-            if self.mm.debug :
+            if self.mm.debug:
                 print "#COMMENT no response skipping"
-                return(None)
+                return (None)
         except socket.timeout, inst:
-            if self.mm.debug :
+            if self.mm.debug:
                 print "#COMMENT no response skipping"
-                return(None)
+                return (None)

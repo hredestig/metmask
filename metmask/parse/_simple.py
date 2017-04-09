@@ -1,4 +1,3 @@
-import pdb
 import re
 
 import metmask
@@ -7,7 +6,7 @@ from main import fileFormatError, fixLine
 from metmask.mask import idMisMatchError, mask
 
 
-class parser :
+class parser:
     """ Parse and import identifiers from a file which is formatted
     so
     that the header names the table name (exactly, e.g. to have
@@ -33,61 +32,61 @@ class parser :
       "id1|id2","n_id1|n_id2"\n
     """
 
-    def __init__ (self, parent) :
+    def __init__(self, parent):
         tabs = fixLine(parent.getLine(), sep=parent.sep1)
-        self.confids = range(0,len(tabs))
-        for i in range(0,len(tabs)):
+        self.confids = range(0, len(tabs))
+        for i in range(0, len(tabs)):
             x = re.findall('weak:(.+)', tabs[i])
             self.confids[i] = parent.confid
-            if x :
+            if x:
                 tabs[i] = x[0].strip()
                 self.confids[i] = metmask.WEAK_CONF
-                #parent.mm.setTableWeak(tabs[i])
+                # parent.mm.setTableWeak(tabs[i])
         parent.tables = tabs
         self.parent = parent
 
-    def process (self) :
+    def process(self):
         parent = self.parent
         ncol = len(parent.tables)
         ## single identifier inserts should be allowed since they can
         ## might map to bins
-        #if ncol < 2:
+        # if ncol < 2:
         #    raise fileFormatError, "Only one column, pointless insertion" 
         # make sure that the necessary tables are in the db
         ll = parent.getLine()
         ll = ll.replace("#", "\\#")
-        while ll :
+        while ll:
             ll = ll.replace("#", "\\#")
             try:
                 vec = fixLine(ll, sep=parent.sep1)
-                if len(vec) != ncol :
+                if len(vec) != ncol:
                     raise fileFormatError, \
                         "Number of columns doesn't match the header :" \
                         + str(parent.lineNum) + ll
                 un = mask({}, parent.mm.idpatterns)
-                for i in range(0, len(vec)) :
+                for i in range(0, len(vec)):
                     idvec = vec[i].strip().split(parent.sep2)
                     idvec[0].strip()
-                    if idvec[0] and not re.match(parent.na, idvec[0]) :
-                        for ide in idvec :
+                    if idvec[0] and not re.match(parent.na, idvec[0]):
+                        for ide in idvec:
                             ide = ide.strip()
-                            if not re.match(parent.na, ide) :
+                            if not re.match(parent.na, ide):
                                 try:
-                                    un.append(parent.tables[i], ide, \
-                                                  self.confids[i], \
-                                                  parent.sourceid)
+                                    un.append(parent.tables[i], ide,
+                                              self.confids[i],
+                                              parent.sourceid)
                                 except idMisMatchError:
                                     print "#OFFENDING LINE " + \
-                                        str(parent.lineNum) + "@" + \
-                                    parent.tables[i] +\
-                                        " : " + str(ide)
+                                          str(parent.lineNum) + "@" + \
+                                          parent.tables[i] + \
+                                          " : " + str(ide)
                 # no empty masks
-                if not un.isEmpty() :
+                if not un.isEmpty():
                     parent.setMask(un)
             except KeyboardInterrupt:
                 raise Exception, "Interrupt caught, breaking"
             except fileFormatError:
-                print "#ERROR: format problem" + ll 
+                print "#ERROR: format problem" + ll
             except:
                 print "#ERROR:" + ll
             ll = parent.getLine()

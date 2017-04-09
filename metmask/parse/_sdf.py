@@ -1,7 +1,3 @@
-import pdb
-import re
-
-import metmask.parse
 from metmask.mask import mask
 
 
@@ -29,28 +25,28 @@ class parser:
             if ll.startswith('>  <NAME>') or ll.startswith('>  <SYNONYMS>'):
                 tmp = parent.getLine().strip()
                 while tmp != "" :
-                    un.append('synonym', tmp, \
+                    un.append('synonym', tmp,
                                   parent.confid, parent.sourceid)
                     tmp = parent.getLine().strip()
             # nist
             if ll.startswith('>  <NISTNO>') :
                 tmp = parent.getLine().strip()
                 while tmp != "" :
-                    un.append('nist', tmp, \
+                    un.append('nist', tmp,
                                   parent.confid, parent.sourceid)
                     tmp = parent.getLine().strip()
             # cas
             if ll.startswith('>  <CASNO>') :
                 tmp = parent.getLine().strip()
                 while tmp != "" :
-                    un.append('cas', tmp, \
+                    un.append('cas', tmp,
                                   parent.confid, parent.sourceid)
                     tmp = parent.getLine().strip()
             # formula
             if ll.startswith('>  <FORMULA>') :
                 tmp = parent.getLine().strip()
                 while tmp != "" :
-                    un.append('formula', tmp, \
+                    un.append('formula', tmp,
                                   parent.mm.confidence['weak'], parent.sourceid)
                     tmp = parent.getLine().strip()
             ll = parent.getLine()
