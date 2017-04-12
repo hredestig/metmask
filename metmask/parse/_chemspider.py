@@ -9,10 +9,10 @@ class chemspiderParser:
     def __init__(self, parent):
         self.token = parent.token
         if not self.token:
-            raise parserError, """a security token is needed for using chemspider. 
+            raise parserError("""a security token is needed for using chemspider. 
 register a user at http://www.chemspider.com and put your security token in the 
 metmask configuration file in 'general' section under the name 'token'
-"""
+""")
         search = 'http://www.chemspider.com/Search.asmx/'
         self.SimpleSearchURL = search + 'SimpleSearch?'
         self.GetCompoundInfoURL = search + 'GetCompoundInfo?'
@@ -30,10 +30,10 @@ metmask configuration file in 'general' section under the name 'token'
                           'inchikey': '/InChIToInChIKey?inchi=',
                           'smiles': '/InChIToSMILES?inchi='},
                 'smiles': {'inchi': '/SMILESToInChI?smiles='}}
-        if not urls.has_key(start):
-            raise Exception, "unsupported query"
-        if not urls[start].has_key(goal):
-            raise Exception, "unsupported query"
+        if start not in urls:
+            raise Exception("unsupported query")
+        if goal not in urls[start]:
+            raise Exception("unsupported query")
         query = self.parent.urlSafe(query)
         url = self.InChI + urls[start][goal] + query
         qRes = self.parent.getUrl(url)
@@ -106,7 +106,7 @@ metmask configuration file in 'general' section under the name 'token'
         """ take a mask and get filled mask from cs """
         res = {}
         tmpmask = mask({}, mm.idpatterns)
-        if not any(map(lambda x: x in self.queryTables, un.getTables())):
+        if not any([x in self.queryTables for x in un.getTables()]):
             return (res)
         if un.hasTable('chemspider'):
             for csid in un.getIdentifiers('chemspider'):
@@ -118,15 +118,14 @@ metmask configuration file in 'general' section under the name 'token'
             if un.hasTable(table):
                 identifiers = un.getIdentifiers(table)
                 if tmpmask.hasTable(table):
-                    identifiers = filter(lambda x: x \
-                                                   not in tmpmask.getIdentifiers(table), \
-                                         identifiers)
+                    identifiers = [x for x in identifiers if x \
+                                                   not in tmpmask.getIdentifiers(table)]
             return (identifiers)
 
         def fillresandmerge(ide, tmpmask, res):
             newids = self.SimpleSearch(ide)
             for csid in newids:
-                if not res.has_key(csid):
+                if csid not in res:
                     res[csid] = self.GetCompoundInfo(mm, csid)
                     tmpmask.merge(res[csid])
 
@@ -207,9 +206,9 @@ class parser:
             except:
                 pdb.set_trace()
             if parent.mm.debug:
-                print "#COMMENT mask " + str(ll) + " csid " + str(csMasks.keys())
+                print("#COMMENT mask " + str(ll) + " csid " + str(list(csMasks.keys())))
             cmsk = mask({})
-            for csid in csMasks.keys():
+            for csid in list(csMasks.keys()):
                 csMasks[csid].setAllAssoc(parent.mm.addAss())
                 cmsk.merge(csMasks[csid])
             parent.setMask(cmsk, setass=False)

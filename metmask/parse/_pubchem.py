@@ -3,8 +3,8 @@ import socket
 
 import xml.dom.minidom
 
-import SOAPpy
-from SOAPpy import WSDL
+# import SOAPpy
+# from SOAPpy import WSDL
 
 import metmask.query as mmquery
 from metmask.mask import guessTable, mask
@@ -37,26 +37,26 @@ class pubchemParser:
             '&mail=' + self.mail + \
             '&retmax' + self.MAX_RET
 
-    def queryPubchem(self, un, table):
-        """ perform queries for table. results are left online """
-        if not self.fields.has_key(table):
-            raise Exception, "unsupported query"
-        if un.hasTable(table):
-            for ide in un.getIdentifiers(table):
-                qres = self.wsdlserver.run_eSearch(tool=self.tool, email=self.mail, term="\"" + ide + "\"",
-                                                   field=self.fields[table], retmax=self.MAX_RET, db=self.db,
-                                                   usehistory='y')
-                if isinstance(qres, SOAPpy.Types.structType):
-                    if qres['Count'] != '0':
-                        self.queryResult = qres
-                        return (True)
-        return (False)
+    # def queryPubchem(self, un, table):
+    #     """ perform queries for table. results are left online """
+    #     if table not in self.fields:
+    #         raise Exception("unsupported query")
+    #     if un.hasTable(table):
+    #         for ide in un.getIdentifiers(table):
+    #             qres = self.wsdlserver.run_eSearch(tool=self.tool, email=self.mail, term="\"" + ide + "\"",
+    #                                                field=self.fields[table], retmax=self.MAX_RET, db=self.db,
+    #                                                usehistory='y')
+    #             if isinstance(qres, SOAPpy.Types.structType):
+    #                 if qres['Count'] != '0':
+    #                     self.queryResult = qres
+    #                     return (True)
+    #     return (False)
 
     def pubchem2mask(self, docSum):
         """ turn a docsum node in to a mask
         """
         un = mask({}, self.parent.mm.idpatterns)
-        cid = mmquery.nodecontents(docSum.getElementsByTagName("Id")).next()
+        cid = next(mmquery.nodecontents(docSum.getElementsByTagName("Id")))
         un.append('cid', cid, self.parent.confid, self.parent.sourceid)
         p = re.compile('(<a href[^>]*>)|(</a>)|(ligand)|(,)')
         cnf = self.parent.confid
@@ -160,7 +160,7 @@ class parser:
         parent = self.parent
         weakTables = ['formula', 'weight', 'totalcharge', 'xlogp', 'hbonddonor',
                       'hbondacceptor', 'heavyatom', 'tpsa']
-        map(lambda x: parent.mm.setTableWeak(x), weakTables)
+        list(map(lambda x: parent.mm.setTableWeak(x), weakTables))
         ll = True
 
         while ll:
@@ -177,10 +177,10 @@ class parser:
             try:
                 pcMasks = self.pc.getPubchemMasks(un)
             except:
-                print "#COMMENT unknown error"
+                print("#COMMENT unknown error")
                 continue
             if parent.mm.debug:
-                print "#COMMENT mask " + str(ll)
+                print("#COMMENT mask " + str(ll))
             msk = mask({})
             for pcmsk in pcMasks:
                 pcmsk.setAllAssoc(parent.mm.addAss())

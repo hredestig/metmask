@@ -2,11 +2,11 @@ import os
 import re
 import metmask.parse.main
 
-tmp = filter(lambda x: re.match("_[^_]", x), os.listdir(__path__[0])) + ['main']
+tmp = [x for x in os.listdir(__path__[0]) if re.match("_[^_]", x)] + ['main']
 
-__all__ = list(set(map(lambda x: re.sub("\.py.*$", "", x), tmp)))
+__all__ = list(set([re.sub("\.py.*$", "", x) for x in tmp]))
 
-tmp = filter(lambda x: re.match("_[^_]", x), __all__)
+tmp = [x for x in __all__ if re.match("_[^_]", x)]
 PARSERS = tmp
 """ the current list of available parsers  """
 

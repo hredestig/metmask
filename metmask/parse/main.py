@@ -1,7 +1,7 @@
-import httplib
+import http.client
 import shlex
 import socket
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import metmask.parse
 from metmask.parse import *
@@ -50,9 +50,9 @@ def fixLine(ll, sep):
     splitter.whitespace_split = True
     res = list(splitter)
     # undo any damage we did
-    res = map(lambda x: re.sub(sep + ' ' + \
+    res = [re.sub(sep + ' ' + \
                                sep, sep + \
-                               sep, x), res)
+                               sep, x) for x in res]
     return (res)
 
 
@@ -68,7 +68,7 @@ class importer:
             parsertype = "_" + parsertype
 
         if not parsertype in metmask.parse.PARSERS:
-            raise parserError, "Unknown parser"
+            raise parserError("Unknown parser")
 
         self.token = token
         """ the chemspider security token """
@@ -115,13 +115,13 @@ class importer:
         # the main action now happens with in 
         # importer.<_parser>.parser.process
         st = "self.parser = metmask.parse." + parsertype + ".parser(self)"
-        exec st in locals(), globals()
+        exec(st, locals(), globals())
 
         self.sourceid = mm.addSource(source, master=self.master)
         """the sourceid as defined by the db"""
 
         # make sure that the necessary tables are in the db
-        map(self.mm.createIdTable, self.tables)
+        list(map(self.mm.createIdTable, self.tables))
         if master and master != 'unknown':
             self.mm.createIdTable(self.master)
         self.mm.connection.commit()
@@ -134,11 +134,11 @@ class importer:
     def getLine(self, comment=None):
         """safe way to get a new line"""
         try:
-            ll = self.fileobj.next()
+            ll = next(self.fileobj)
             self.lineNum = self.lineNum + 1
             if comment:
                 while str(ll).startswith(comment):
-                    ll = self.fileobj.next()
+                    ll = next(self.fileobj)
                     self.lineNum = self.lineNum + 1
             if not re.match('\s', str(ll)):
                 return (str(ll).strip())
@@ -188,16 +188,16 @@ class importer:
         ignore junk response
         """
         try:
-            return (urllib2.urlopen(url))
-        except httplib.BadStatusLine, inst:
+            return (urllib.request.urlopen(url))
+        except http.client.BadStatusLine as inst:
             if self.mm.debug:
-                print "#COMMENT bad response skipping"
+                print("#COMMENT bad response skipping")
                 return (None)
-        except urllib2.URLError, inst:
+        except urllib.error.URLError as inst:
             if self.mm.debug:
-                print "#COMMENT no response skipping"
+                print("#COMMENT no response skipping")
                 return (None)
-        except socket.timeout, inst:
+        except socket.timeout as inst:
             if self.mm.debug:
-                print "#COMMENT no response skipping"
+                print("#COMMENT no response skipping")
                 return (None)

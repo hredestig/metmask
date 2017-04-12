@@ -1,6 +1,6 @@
 import re
 
-from main import fixLine, parserError
+from .main import fixLine, parserError
 from metmask.mask import mask
 
 
@@ -16,9 +16,9 @@ class parser:
             vec = [vec[0]] + [vec[1]] + [vec[5]]
             if vec != ['Compound_common_name',
                        'Compound_synonyms', 'Links']:
-                raise parserError, "file does not look like expected"
+                raise parserError("file does not look like expected")
         except:
-            raise parserError, "file does not look like expected:" + header
+            raise parserError("file does not look like expected:" + header)
 
     def process(self):
         """ parse a cyc dump file and fectch cas, kegg, synonym and

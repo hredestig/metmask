@@ -2,7 +2,7 @@ import re
 
 import metmask
 import metmask.parse
-from main import fileFormatError, fixLine
+from .main import fileFormatError, fixLine
 from metmask.mask import idMisMatchError, mask
 
 
@@ -34,7 +34,7 @@ class parser:
 
     def __init__(self, parent):
         tabs = fixLine(parent.getLine(), sep=parent.sep1)
-        self.confids = range(0, len(tabs))
+        self.confids = list(range(0, len(tabs)))
         for i in range(0, len(tabs)):
             x = re.findall('weak:(.+)', tabs[i])
             self.confids[i] = parent.confid
@@ -60,9 +60,8 @@ class parser:
             try:
                 vec = fixLine(ll, sep=parent.sep1)
                 if len(vec) != ncol:
-                    raise fileFormatError, \
-                        "Number of columns doesn't match the header :" \
-                        + str(parent.lineNum) + ll
+                    raise fileFormatError("Number of columns doesn't match the header :" \
+                        + str(parent.lineNum) + ll)
                 un = mask({}, parent.mm.idpatterns)
                 for i in range(0, len(vec)):
                     idvec = vec[i].strip().split(parent.sep2)
@@ -76,17 +75,17 @@ class parser:
                                               self.confids[i],
                                               parent.sourceid)
                                 except idMisMatchError:
-                                    print "#OFFENDING LINE " + \
+                                    print("#OFFENDING LINE " + \
                                           str(parent.lineNum) + "@" + \
                                           parent.tables[i] + \
-                                          " : " + str(ide)
+                                          " : " + str(ide))
                 # no empty masks
                 if not un.isEmpty():
                     parent.setMask(un)
             except KeyboardInterrupt:
-                raise Exception, "Interrupt caught, breaking"
+                raise Exception("Interrupt caught, breaking")
             except fileFormatError:
-                print "#ERROR: format problem" + ll
+                print("#ERROR: format problem" + ll)
             except:
-                print "#ERROR:" + ll
+                print("#ERROR:" + ll)
             ll = parent.getLine()
