@@ -55,12 +55,12 @@ def fixcas(cas, constraints):
     - `cas` : string representing the cas number
     """
     inputcas = cas
-    if not constraints.has_key('cas') or len(cas) < 4:
-        raise idMisMatchError, "Do not know how to fix : " + str(cas)
+    if 'cas' not in constraints or len(cas) < 4:
+        raise idMisMatchError("Do not know how to fix : " + str(cas))
     if not re.match(constraints['cas'], cas):
         cas = cas[0:-3] + '-' + cas[-3:-1] + '-' + cas[-1]
     if not re.match(constraints['cas'], cas):
-        raise idMisMatchError, "not a CAS number: " + str(inputcas)
+        raise idMisMatchError("not a CAS number: " + str(inputcas))
     return cas
 
 
@@ -77,7 +77,7 @@ def formula2dic(formula):
             numb = 1
             # ignore protons, no easy way of saying if they matter
             # only add the first atom, later may be complex waters
-        if (not atom == 'H') & (not res.has_key(atom)):
+        if (not atom == 'H') & (atom not in res):
             res[atom] = int(numb)
     return res
 
@@ -99,7 +99,7 @@ def guessTable(string, constraints, mm=None):
         existingTables = set(mm.getIdTables())
     guesses = []
     string = str(string)
-    for k in constraints.keys():
+    for k in list(constraints.keys()):
         ok = True
         if existingTables:
             if k not in existingTables:
@@ -145,7 +145,7 @@ class mask:
 
     def getTables(self):
         """ get a list with the tables specified for this mask """
-        return (self.cat.keys())
+        return (list(self.cat.keys()))
 
     def hasTable(self, table):
         """ true if the mask has all the specified tables.
@@ -155,7 +155,7 @@ class mask:
         """
         if not isinstance(table, list):
             table = [table]
-        res = map(lambda x: self.cat.has_key(x), table)
+        res = [x in self.cat for x in table]
         return (all(res))
 
     def getAssoc(self, table, identifier):
@@ -197,7 +197,7 @@ class mask:
             identifiers = self.getIdentifiers(tab)
             for ide in identifiers:
                 conf = self.getConfidence(tab, ide)
-                self.cat[tab][ide][0] = map(lambda x: ass, range(0, len(conf)))
+                self.cat[tab][ide][0] = [ass for x in range(0, len(conf))]
 
     def getConfidence(self, table, identifier):
         """ get the confidence identifiers for a certain table and identifier
@@ -247,11 +247,9 @@ class mask:
         """
         if not self.hasTable(table):
             return (None)
-        ids = self.cat[table].keys()
+        ids = list(self.cat[table].keys())
         if not weak:
-            ids = filter(lambda x: any(map(lambda y: y != metmask.WEAK_CONF, \
-                                           self.getConfidence(table, x))), \
-                         ids)
+            ids = [x for x in ids if any([y != metmask.WEAK_CONF for y in self.getConfidence(table, x)])]
         return (ids)
 
     def copyTable(self, un, table):
@@ -270,7 +268,7 @@ class mask:
         """
         ids = self.getIdentifiers(table, True)
         for id in ids:
-            if all(map(lambda x: x == metmask.WEAK_CONF, self.getConfidence(table, id))):
+            if all([x == metmask.WEAK_CONF for x in self.getConfidence(table, id)]):
                 self.delIdentifiers(table, id)
 
     def delIdentifiers(self, table, identifier):
@@ -301,7 +299,7 @@ class mask:
         """
         if not self.hasTable(table):
             return (False)
-        return (self.cat[table].has_key(identifier))
+        return (identifier in self.cat[table])
 
     def toBIP(self, out, mm):
         """ obtain a graph representation of this mask
@@ -313,12 +311,11 @@ class mask:
         kall = []
         weak = []
         tables = self.getTables()
-        masters = map(lambda src: mm.sourceid2master([src])[0], self.getSource())
+        masters = [mm.sourceid2master([src])[0] for src in self.getSource()]
 
-        sources = filter(lambda src: mm.sourceid2master([src])[0] not in ['unknown', '_id'], \
-                         self.getSource())
+        sources = [src for src in self.getSource() if mm.sourceid2master([src])[0] not in ['unknown', '_id']]
         if not sources:
-            raise Exception, "no sources have their master id set, re-import data and set master ids"
+            raise Exception("no sources have their master id set, re-import data and set master ids")
         for src in sources:
             rootIds = []
             srcmask = self.subsetToSource(src)
@@ -338,21 +335,19 @@ class mask:
                     for ide in identifiers:
                         if ide == rtId:
                             continue
-                        if len(filter(lambda x: x in srcmask.getAssoc(tab, ide),
-                                      srcmask.getAssoc(str(mm.sourceid2master([src])[0]), rtId))) > 0:
+                        if len([x for x in srcmask.getAssoc(str(mm.sourceid2master([src])[0]), rtId) if x in srcmask.getAssoc(tab, ide)]) > 0:
                             fran.append(str(mm.sourceid2master([src])[0]) + ":" + str(rtId))
                             till.append(str(tab) + ":" + str(ide).replace(",", ""))
                             kall.append(mm.sourceid2source([src])[0])
                             weak.append(mm.confidence['weak'] == \
                                         srcmask.getConfidence(tab, ide)[srcmask.getSource(tab, ide).index(src)])
         if len(fran) == 0:
-            raise Exception, "empty graph"
+            raise Exception("empty graph")
         for i in range(0, len(fran)):
-            print >> out, \
-                "" + "\t".join(map(str, [str(fran[i]).replace('\t', ' '), \
+            print("" + "\t".join(map(str, [str(fran[i]).replace('\t', ' '), \
                                          str(till[i]).replace('\t', ' '), \
                                          str(kall[i]).replace('\t', ' '), \
-                                         str(weak[i]).replace('\t', ' ')]))
+                                         str(weak[i]).replace('\t', ' ')])), file=out)
 
     def append(self, table, ident, cnf=None, src=None, ass=None):
         """ Add an identifier to this mask.
@@ -376,9 +371,9 @@ class mask:
             curFormulas = self.getIdentifiers('formula')
             for cu in curFormulas:
                 if formula2dic(cu) != formula2dic(ident):
-                    print >> sys.stderr, "skipping conspicuous mask: " + \
+                    print("skipping conspicuous mask: " + \
                                          str(self.getIdentifiers("_id")) \
-                                         + " " + str(ident) + " and " + str(cu)
+                                         + " " + str(ident) + " and " + str(cu), file=sys.stderr)
                     return (None)
         # make identifiers always lower case and not a formula
         if 'encode' in dir(ident) and not table in self.caseSensitiveTables:
@@ -387,13 +382,13 @@ class mask:
         if re.match("\|", str(ident)):
             ident = re.sub("\|", "", str(ident))
         # check legality
-        if self.constraints.has_key(table):
+        if table in self.constraints:
             if not table in guessTable(ident, self.constraints):
                 # try to fix the identifier
                 if table == 'cas':
                     ident = fixcas(ident, self.constraints)
                 if not table in guessTable(ident, self.constraints):
-                    raise (idMisMatchError(str(table) + ": " + str(ident)))
+                    raise idMisMatchError
                     # we are good, append:
         if not self.hasTable(table):
             self.cat[table] = {}
@@ -411,7 +406,7 @@ class mask:
         """
         tab = self.getTables()
         if mm:
-            tab = filter(lambda tab: tab not in mm.getWeakTables(), tab)
+            tab = [tab for tab in tab if tab not in mm.getWeakTables()]
         return (len(tab))
 
     def resolve(self, other, mm):
@@ -473,8 +468,8 @@ class mask:
                 if other.hasId(tab, ide) and self.hasId(tab, ide):
                     cS = self.getConfidence(tab, ide)
                     cO = other.getConfidence(tab, ide)
-                    if (not all(map(lambda x: x == mm.confidence['weak'], cO)) and \
-                                not all(map(lambda x: x == mm.confidence['weak'], cS))):
+                    if (not all([x == mm.confidence['weak'] for x in cO]) and \
+                                not all([x == mm.confidence['weak'] for x in cS])):
                         overlap = overlap + [tab]
                         # overlapping on different confidence levels -> False
                         diff = set(cS).difference(set(cO))
@@ -526,20 +521,20 @@ class mask:
         """ Print some basic information about this mask.
         """
         if self.isEmpty():
-            print "Empty mask"
+            print("Empty mask")
             return (None)
         if self.hasTable('_id'):
-            print "o-o-o-o:"
-            print 'mask:'
-            print str(self.getIdentifiers('_id'))
+            print("o-o-o-o:")
+            print('mask:')
+            print(str(self.getIdentifiers('_id')))
         for tab in self.getTables():
             if tab != '_id':
-                print tab + ":"
+                print(tab + ":")
                 n = 0
                 identifiers = self.getIdentifiers(tab)
                 for ide in identifiers:
                     if n < max or all:
-                        print ide,
+                        print(ide, end=' ')
                         if confidence or source:
                             conf = self.getConfidence(tab, ide)
                             sour = self.getSource(tab, ide)
@@ -547,15 +542,15 @@ class mask:
                                 sour = mm.sourceid2source(sour)
                             for i in range(0, len(conf)):
                                 if source:
-                                    print sour[i],
+                                    print(sour[i], end=' ')
                                 if confidence:
-                                    print conf[i],
-                        print
+                                    print(conf[i], end=' ')
+                        print()
                         n = n + 1
                     elif n == max and not all:
                         if len(identifiers) - max != 0:
-                            print "(" + str(len(identifiers) - max) \
-                                  + "more identifer(s)" + ")"
+                            print("(" + str(len(identifiers) - max) \
+                                  + "more identifer(s)" + ")")
                         break
 
     def intersect(self, other):
@@ -566,11 +561,9 @@ class mask:
         """
         newmask = mask({})
         # the tables common to both masks
-        tables = filter(lambda x: x in self.getTables(), \
-                        other.getTables())
+        tables = [x for x in other.getTables() if x in self.getTables()]
         for tab in tables:
-            identifiers = filter(lambda x: x in self.getIdentifiers(tab), \
-                                 other.getIdentifiers(tab))
+            identifiers = [x for x in other.getIdentifiers(tab) if x in self.getIdentifiers(tab)]
             for ide in identifiers:
                 conf = other.getConfidence(tab, ide)
                 src = other.getSource(tab, ide)
@@ -596,7 +589,7 @@ class mask:
          Parameters:
         -`other`: another instance of the `mask` class.
         """
-        raise idMisMatchError, "Banned function"
+        raise idMisMatchError("Banned function")
         tables = other.getTables()
         for tab in tables:
             identifiers = other.getIdentifiers(tab)
@@ -612,8 +605,7 @@ class mask:
         for tab in tables:
             identifiers = self.getIdentifiers(tab)
             for ide in identifiers:
-                if any(map(lambda x: x == metmask.NEVERMERGE_CONF, \
-                           self.getConfidence(tab, ide))):
+                if any([x == metmask.NEVERMERGE_CONF for x in self.getConfidence(tab, ide)]):
                     return (True)
         return (False)
 
@@ -625,13 +617,11 @@ class mask:
          considered. Defaults to all tables if not specified.
         """
         # the tables common to both masks
-        tables = filter(lambda x: x in self.getTables(), \
-                        other.getTables())
+        tables = [x for x in other.getTables() if x in self.getTables()]
         if onlyTables:
-            tables = filter(lambda x: x in onlyTables, tables)
+            tables = [x for x in tables if x in onlyTables]
         for tab in tables:
-            identifiers = filter(lambda x: x in self.getIdentifiers(tab), \
-                                 other.getIdentifiers(tab))
+            identifiers = [x for x in other.getIdentifiers(tab) if x in self.getIdentifiers(tab)]
             for ide in identifiers:
                 self.weakenIdentifiers(tab, ide)
                 if tab == 'formula':

@@ -1,6 +1,6 @@
 import re
 
-from main import fileFormatError
+from .main import fileFormatError
 from metmask.mask import mask
 
 
@@ -24,8 +24,7 @@ class parser:
 
         ll = parent.getLine()
         if not re.match("^ENTRY", ll):
-            raise fileFormatError, \
-                "COMPOUNDS file doesn't look like expected"
+            raise fileFormatError("COMPOUNDS file doesn't look like expected")
 
         un = mask({}, parent.mm.idpatterns)
         good = True

@@ -1,4 +1,4 @@
-from main import parserError
+from .main import parserError
 from metmask.mask import idMisMatchError, mask
 
 
@@ -30,7 +30,7 @@ class parser:
         un = mask({}, parent.mm.idpatterns)
         ll = parent.getLine(comment='\n')
         if not ll.startswith("#BEGIN_METABOCARD"):
-            raise parserError, "file does seem to contain metabocards: " + ll
+            raise parserError("file does seem to contain metabocards: " + ll)
         parent.mm.setTableWeak('formula')
         ok = False
 
@@ -44,7 +44,7 @@ class parser:
 
             elif ll.startswith("#"):
                 ok = False
-                if self.tableDict.has_key(ll.strip()):
+                if ll.strip() in self.tableDict:
                     con = self.tableDict[ll.strip()][0]
                     tab = self.tableDict[ll.strip()][1]
                     ok = True
@@ -57,7 +57,7 @@ class parser:
                             try:
                                 un.append(tab, iden, con, parent.sourceid)
                             except idMisMatchError:
-                                print "#OFFENDING LINE " + \
+                                print("#OFFENDING LINE " + \
                                       str(parent.lineNum) + "@" + \
-                                      tab + " : " + str(iden)
+                                      tab + " : " + str(iden))
             ll = parent.getLine(comment='\n')

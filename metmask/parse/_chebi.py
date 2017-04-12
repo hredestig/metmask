@@ -24,7 +24,7 @@ class chebiParser:
         if qRes:
             searchResults = xml.dom.minidom.parse(qRes)
             ids = list(query.nodecontents(searchResults.getElementsByTagName('ns1:chebiId')))
-            return map(lambda x: x.replace('CHEBI:', ''), ids)
+            return [x.replace('CHEBI:', '') for x in ids]
         else:
             return []
 
@@ -56,7 +56,7 @@ class chebiParser:
         res = {}
         # pdb.set_trace()
         tmpmask = mask({}, mm.idpatterns)
-        if not any(map(lambda x: x in self.queryTables, un.getTables())):
+        if not any([x in self.queryTables for x in un.getTables()]):
             return (res)
         if un.hasTable('chebi'):
             for ch in un.getIdentifiers('chebi'):
@@ -69,14 +69,13 @@ class chebiParser:
                 identifiers = un.getIdentifiers(table)
                 if tmpmask.hasTable(table):
                     # to start querying for the same identifiers several times
-                    identifiers = filter(lambda x: x not in tmpmask.getIdentifiers(table), \
-                                         identifiers)
+                    identifiers = [x for x in identifiers if x not in tmpmask.getIdentifiers(table)]
             return (identifiers)
 
         def fillresandmerge(qUrl, tmpmask, res):
             newids = self.url2ids(qUrl)
             for ch in newids:
-                if not res.has_key(ch):
+                if ch not in res:
                     res[ch] = self.chebi2mask(mm, ch)
                     tmpmask.merge(res[ch])
 
@@ -105,12 +104,12 @@ class chebiParser:
                    self.parent.urlSafe(ide) + "&searchCategory=SMILES"
             fillresandmerge(qUrl, tmpmask, res)
 
-        foundIds = res.keys()
+        foundIds = list(res.keys())
         children = []
         for ch in foundIds:
             children = self.getChebiChildren(ch)
             for child in children:
-                if not res.has_key(child):
+                if child not in res:
                     res[child] = self.chebi2mask(mm, child)
         return (res)
 
@@ -222,9 +221,9 @@ class parser:
             except:
                 pdb.set_trace()
             if self.parent.mm.debug:
-                print "#COMMENT mask " + str(ll) + " chebi " + str(chebiMasks.keys())
+                print("#COMMENT mask " + str(ll) + " chebi " + str(list(chebiMasks.keys())))
             chMask = mask({})
-            for ch in chebiMasks.keys():
+            for ch in list(chebiMasks.keys()):
                 chebiMasks[ch].setAllAssoc(self.parent.mm.addAss())
                 chMask.merge(chebiMasks[ch])
             self.parent.setMask(chMask, setass=False)
