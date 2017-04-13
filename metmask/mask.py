@@ -12,7 +12,6 @@ Copyright (C) Henning Redestig
 See COPYING.txt for licensing details.
 """
 
-import pdb
 import re
 import sys
 
@@ -117,7 +116,7 @@ class mask:
     assumed to be referring to a common parent chemical.
     """
 
-    def __init__(self, cat={}, constraints={}):
+    def __init__(self, cat=None, constraints=None):
         """ Initialize a `mask` object.
 
         Parameters:
@@ -131,9 +130,9 @@ class mask:
          regular expression for each table that the identifiers in
          that table must match.
         """
-        self.cat = cat
+        self.cat = {} if cat is None else cat
         """ `dictionary` with the tables and identifiers that this mask is mapped to"""
-        self.constraints = constraints
+        self.constraints = {} if constraints is None else constraints
         """ `dictionary` with the constraints"""
         self.caseSensitiveTables = ['inchi', 'formula', 'smiles', 'inchikey']
         """ tables that will not be down-cased

@@ -60,15 +60,10 @@ class importer:
     """A class for importing information to the metmask database
     """
 
-    def __init__(self, mm, \
-                 parsertype, fileobj, source, \
-                 confidence='good', \
-                 sep1=",", sep2="|", \
-                 na="[nN][Aa]", \
-                 resolve=True, \
-                 boost=False, \
-                 master='unknown', \
-                 token=None):
+    def __init__(self, mm,
+                 parsertype, fileobj, source,
+                 confidence='good', sep1=",", sep2="|", na="[nN][Aa]",
+                 resolve=True, boost=False, master='unknown', token=None):
         if not re.match("_", parsertype):
             parsertype = "_" + parsertype
 

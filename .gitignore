@@ -4,3 +4,7 @@
 *egg-info
 *db-journal
 .idea/
+/.DS_Store
+misc/
+/:memory:
+.cache

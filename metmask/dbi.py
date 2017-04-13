@@ -801,10 +801,8 @@ class db:
                 except sqlite3.OperationalError, inst:
                     raise inst
 
-    def simpleQuery(self, name, what='_id', to='_id', \
-                    external=True, \
-                    learn=True, \
-                    weak=True, outmask=False, wildcards=False):
+    def simpleQuery(self, name, what='_id', to='_id',
+                    external=True, learn=True, weak=True, outmask=False, wildcards=False):
         """ Query the database for a single or set of identifiers.  Return a
         vector of masks. Or the empty vector if not hits were found.
 
@@ -829,7 +827,7 @@ class db:
         if to[0] == 'ALL':
             to = self.getIdTables(weak)
         if re.match("~", to[0]):
-            to = filter(lambda x: x not in map(lambda x: x.replace("~", ""), to), \
+            to = filter(lambda x: x not in map(lambda x: x.replace("~", ""), to),
                         self.getIdTables(weak))
         if not isinstance(to, list):
             to = [to]
