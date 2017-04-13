@@ -27,7 +27,7 @@ class badMaskError(Exception):
         self.value = value
 
     def __str__(self):
-        return (repr(self.value))
+        return repr(self.value)
 
 
 class idMisMatchError(Exception):
@@ -40,11 +40,11 @@ class idMisMatchError(Exception):
         self.value = value
 
     def __str__(self):
-        return (repr(self.value))
+        return repr(self.value)
 
 
 def fixchebi(chebi):
-    return (str(chebi).replace('CHEBI:', ''))
+    return str(chebi).replace('CHEBI:', '')
 
 
 def fixcas(cas, constraints):
@@ -61,7 +61,7 @@ def fixcas(cas, constraints):
         cas = cas[0:-3] + '-' + cas[-3:-1] + '-' + cas[-1]
     if not re.match(constraints['cas'], cas):
         raise idMisMatchError, "not a CAS number: " + str(inputcas)
-    return (cas)
+    return cas
 
 
 def formula2dic(formula):
@@ -77,9 +77,9 @@ def formula2dic(formula):
             numb = 1
             # ignore protons, no easy way of saying if they matter
             # only add the first atom, later may be complex waters
-        if ((not atom == 'H') & (not res.has_key(atom))):
+        if (not atom == 'H') & (not res.has_key(atom)):
             res[atom] = int(numb)
-    return (res)
+    return res
 
 
 def guessTable(string, constraints, mm=None):
@@ -102,13 +102,13 @@ def guessTable(string, constraints, mm=None):
     for k in constraints.keys():
         ok = True
         if existingTables:
-            if not k in existingTables:
+            if k not in existingTables:
                 ok = False
         if re.match(constraints[k], string) and ok:
             guesses.append(k)
     if not guesses:
-        return ([constraints['default']])
-    return (guesses)
+        return [constraints['default']]
+    return guesses
 
 
 class mask:
