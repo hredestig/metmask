@@ -1,8 +1,11 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 from .main import parserError
 from metmask.mask import idMisMatchError, mask
 
 
-class parser:
+class parser(object):
     def __init__(self, parent):
         parent.tables = ['biocyc', 'cas', 'chebi', 'formula', 'hmdb', 'inchi',
                          'iupac', 'kegg', 'metlin', 'synonym', 'sid', 'cid',

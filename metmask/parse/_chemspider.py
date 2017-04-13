@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import xml.dom.minidom
 
 import metmask.query as mmquery
@@ -5,7 +8,7 @@ from metmask.mask import mask
 from metmask.parse.main import parserError
 
 
-class chemspiderParser:
+class chemspiderParser(object):
     def __init__(self, parent):
         self.token = parent.token
         if not self.token:
@@ -172,7 +175,7 @@ metmask configuration file in 'general' section under the name 'token'
         return (edited)
 
 
-class parser:
+class parser(object):
     def __init__(self, parent):
         self.cs = chemspiderParser(parent)
         parent.tables = self.cs.queryTables

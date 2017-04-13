@@ -1,3 +1,6 @@
+from __future__ import print_function
+from builtins import str
+from builtins import object
 import pdb
 import socket
 import xml.dom.minidom
@@ -8,7 +11,7 @@ from metmask.mask import mask
 socket.setdefaulttimeout(5)
 
 
-class chebiParser:
+class chebiParser(object):
     def __init__(self, parent):
         self.getComplete = 'http://www.ebi.ac.uk/webservices/chebi/test/getCompleteEntity?'
         self.getLite = 'http://www.ebi.ac.uk/webservices/chebi/test/getLiteEntity?'
@@ -192,7 +195,7 @@ class chebiParser:
         return (un)
 
 
-class parser:
+class parser(object):
     def __init__(self, parent):
         self.chebip = chebiParser(parent)
         parent.tables = self.chebip.queryTables

@@ -1,9 +1,10 @@
+from builtins import object
 import re
 
 from metmask.mask import mask
 
 
-class parser:
+class parser(object):
     def __init__(self, parent):
         parent.tables = ['riken', 'cas', 'synonym', 'kegg', 'formula', 'smiles']
         self.parent = parent
