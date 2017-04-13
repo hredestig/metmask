@@ -15,6 +15,7 @@ before_install:
 - pip install pip --upgrade
 
 install:
+- pip install SOAPpy pytest
 - pip install .
 
-script: pytest -v -rsx
+script: py.test -v -rsx
