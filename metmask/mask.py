@@ -11,7 +11,12 @@ Copyright (C) Henning Redestig
 2009
 See COPYING.txt for licensing details.
 """
+from __future__ import print_function
 
+from builtins import map
+from builtins import str
+from builtins import range
+from builtins import object
 import re
 import sys
 
@@ -111,7 +116,7 @@ def guessTable(string, constraints, mm=None):
     return guesses
 
 
-class mask:
+class mask(object):
     """ An object for managing a group of chemical identifiers that is
     assumed to be referring to a common parent chemical.
     """
@@ -344,9 +349,9 @@ class mask:
         if len(fran) == 0:
             raise Exception("empty graph")
         for i in range(0, len(fran)):
-            print("" + "\t".join(map(str, [str(fran[i]).replace('\t', ' '), \
-                                         str(till[i]).replace('\t', ' '), \
-                                         str(kall[i]).replace('\t', ' '), \
+            print("" + "\t".join(map(str, [str(fran[i]).replace('\t', ' '),
+                                         str(till[i]).replace('\t', ' '),
+                                         str(kall[i]).replace('\t', ' '),
                                          str(weak[i]).replace('\t', ' ')])), file=out)
 
     def append(self, table, ident, cnf=None, src=None, ass=None):
@@ -512,10 +517,7 @@ class mask:
                 src = other.getSource(tab, ide)
                 ass = other.getAssoc(tab, ide)
                 for i in range(0, len(conf)):
-                    self.append(tab, ide, \
-                                conf[i], \
-                                src[i], \
-                                ass[i])
+                    self.append(tab, ide, conf[i], src[i], ass[i])
 
     def show(self, confidence=True, source=True, all=False, max=5, mm=None):
         """ Print some basic information about this mask.
@@ -569,18 +571,12 @@ class mask:
                 src = other.getSource(tab, ide)
                 ass = other.getAssoc(tab, ide)
                 for i in range(0, len(conf)):
-                    newmask.append(tab, ide, \
-                                   conf[i], \
-                                   src[i], \
-                                   ass[i])
+                    newmask.append(tab, ide, conf[i], src[i], ass[i])
                 conf = self.getConfidence(tab, ide)
                 src = self.getSource(tab, ide)
                 ass = self.getAssoc(tab, ide)
                 for i in range(0, len(conf)):
-                    newmask.append(tab, ide, \
-                                   conf[i], \
-                                   src[i], \
-                                   ass[i])
+                    newmask.append(tab, ide, conf[i], src[i], ass[i])
         return (newmask)
 
     def isSubset(self, other):

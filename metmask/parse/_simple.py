@@ -1,3 +1,7 @@
+from __future__ import print_function
+from builtins import str
+from builtins import range
+from builtins import object
 import re
 
 import metmask
@@ -6,7 +10,7 @@ from .main import fileFormatError, fixLine
 from metmask.mask import idMisMatchError, mask
 
 
-class parser:
+class parser(object):
     """ Parse and import identifiers from a file which is formatted
     so
     that the header names the table name (exactly, e.g. to have

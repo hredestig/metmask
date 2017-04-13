@@ -1,3 +1,7 @@
+from __future__ import print_function
+from builtins import next
+from builtins import str
+from builtins import object
 import re
 import socket
 
@@ -12,7 +16,7 @@ from metmask.mask import guessTable, mask
 socket.setdefaulttimeout(10)
 
 
-class pubchemParser:
+class pubchemParser(object):
     def __init__(self, parent):
         self.wsdlserver = \
             WSDL.Proxy('http://www.ncbi.nlm.nih.gov/entrez/eutils/soap/v2.0/eutils.wsdl')
@@ -147,7 +151,7 @@ class pubchemParser:
             return ([])
 
 
-class parser:
+class parser(object):
     def __init__(self, parent):
         self.pc = pubchemParser(parent)
         parent.tables = self.pc.queryTables
@@ -160,7 +164,7 @@ class parser:
         parent = self.parent
         weakTables = ['formula', 'weight', 'totalcharge', 'xlogp', 'hbonddonor',
                       'hbondacceptor', 'heavyatom', 'tpsa']
-        list(map(lambda x: parent.mm.setTableWeak(x), weakTables))
+        list([parent.mm.setTableWeak(x) for x in weakTables])
         ll = True
 
         while ll:

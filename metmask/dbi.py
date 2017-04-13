@@ -39,7 +39,14 @@ Copyright (C) Henning Redestig
 See COPYING.txt for licensing details.
 
 """
+from __future__ import print_function
+from __future__ import absolute_import
 
+from builtins import input
+from builtins import str
+from builtins import map
+from builtins import range
+from builtins import object
 import os
 import pdb
 import re
@@ -47,8 +54,8 @@ import sqlite3
 import sys
 
 import metmask
-import query
-from mask import mask
+from . import query
+from .mask import mask
 
 
 def determine_path():
@@ -59,8 +66,8 @@ def determine_path():
             root = os.path.realpath(root)
         return os.path.dirname(os.path.abspath(root))
     except:
-        print "I'm sorry, but something is wrong."
-        print "There is no __file__ variable. Please contact the author."
+        print("I'm sorry, but something is wrong.")
+        print("There is no __file__ variable. Please contact the author.")
         sys.exit()
 
 
@@ -89,7 +96,7 @@ class dbError(Exception):
         return (repr(self.value))
 
 
-class db:
+class db(object):
     """ The object that should do all transcation to the database. The use
     of a single db object for each database ensures that no db-locks
     should occur and that connections are not opened and closed too often.
@@ -167,9 +174,9 @@ class db:
                 try:
                     open(self.db, 'a').close()
                 except:
-                    raise dbError, 'can not create db @ ' + self.db
+                    raise dbError('can not create db @ ' + self.db)
         if not os.access(self.db, os.R_OK):
-            raise dbError, 'can not access db @ ' + self.db
+            raise dbError('can not access db @ ' + self.db)
         self.rw = os.access(self.db, os.W_OK)
         self.connection = sqlite3.connect(self.db)
         """ `sqlite3.connection` the current connection to the database """
@@ -178,11 +185,11 @@ class db:
         self.c = self.connection.cursor()
         """ `sqlite3.cursor` the object that can write the db """
         if self.debug:
-            print "#COMMENT Welcome to metmask v" + metmask.__version__
+            print("#COMMENT Welcome to metmask v" + metmask.__version__)
         if not self.getIdTables():
             self.setup()
             if self.debug:
-                print "started new database"
+                print("started new database")
         else:
             # check that we have a legal version (same middle version
             # number), other version numbers indicate database
@@ -190,9 +197,9 @@ class db:
             self.c.execute("SELECT number FROM version")
             version = self.c.fetchone()[0]
             if metmask.__version__.split('.')[1] != version.split('.')[1]:
-                raise dbError, 'existing database was created with version ' + \
+                raise dbError('existing database was created with version ' + \
                                str(version) + \
-                               ', the database format has changed, re-create the database or use a matching metmask version'
+                               ', the database format has changed, re-create the database or use a matching metmask version')
 
         self.updateConfidence()
         self.updateIdpatterns()
@@ -201,7 +208,7 @@ class db:
         """ commit and close and connection """
         try:
             self.close()
-        except sqlite3.ProgrammingError, inst:
+        except sqlite3.ProgrammingError as inst:
             if inst[0] != 'Cannot operate on a closed database.':
                 raise inst
 
@@ -213,7 +220,7 @@ class db:
             self.idpatterns[str(t[0])] = t[1]
         if self.rw:
             self.c.execute("DELETE FROM idpatterns")
-            for k in self.idpatterns.keys():
+            for k in list(self.idpatterns.keys()):
                 self.c.execute("INSERT INTO idpatterns VALUES (?,?)", (k, self.idpatterns[k]))
 
     def updateConfidence(self):
@@ -229,7 +236,7 @@ class db:
             self.connection.commit()
             self.connection.close()
             if self.debug:
-                print "#COMMENT closed metmask database"
+                print("#COMMENT closed metmask database")
 
     def setup(self):
         """ Create the necessary tables for and insert basic information that
@@ -268,7 +275,7 @@ class db:
             self.c.execute("INSERT INTO idtables VALUES (0, \"_id\", 0)")
             self.c.execute("INSERT INTO idtables VALUES (1, \"preferred\", 0)")
         except sqlite3.OperationalError:
-            raise dbError, "Something went wrong, is the db already initialized?"
+            raise dbError("Something went wrong, is the db already initialized?")
 
     def updateForBioC(self):
         """ update map_counts and etc so bioconductor is happy
@@ -289,7 +296,7 @@ class db:
         self.c.execute("INSERT INTO metadata VALUES (?, ?)", (str("DBSCHEMAVERSION"), str("2.0")))
         self.c.execute("INSERT INTO metadata VALUES (?, ?)", (str("DBSCHEMA"), str("METMASK_DB")))
         self.c.execute("INSERT INTO metadata VALUES (?, ?)", ("METMASK_VERSION", str(metmask.__version__)))
-        for k in self.confidence.keys():
+        for k in list(self.confidence.keys()):
             self.c.execute("INSERT INTO metadata VALUES (?, ?)", ("CONFIDENCE_" + str(k).upper(), self.confidence[k]))
         self.c.execute("SELECT * FROM sources")
         tmp = self.c.fetchall()
@@ -310,9 +317,9 @@ class db:
         """
         name = name.rstrip()
         if re.match(".*\..*", name):
-            raise dbError, "dot in table name " + name + ". Specify other name"
+            raise dbError("dot in table name " + name + ". Specify other name")
         if name in self.FORBIDDENTABLENAMES:
-            raise dbError, "name of table must not be one of" + str(self.FORBIDDENTABLENAMES)
+            raise dbError("name of table must not be one of" + str(self.FORBIDDENTABLENAMES))
         stTable = "CREATE TABLE " + name + " ( _id INTEGER REFERENCES _id (_id), " + \
                   name + \
                   " TEXT, conf INTEGER, src INTEGER, qc INTEGER, ass INTEGER DEFAULT 0, UNIQUE (_id, ass, " + name + "), UNIQUE (" + name + ", qc))"
@@ -320,7 +327,7 @@ class db:
             self.c.execute(stTable)
             self.c.execute("CREATE INDEX " + name + "_idx" + " ON " + name + " ( " + name + " )")
             self.c.execute("INSERT INTO idtables VALUES (?, ?, ?)", (None, name, weak))
-        except sqlite3.OperationalError, inst:
+        except sqlite3.OperationalError as inst:
             if not re.match(".*already exists$", str(inst)):
                 raise inst
 
@@ -331,7 +338,7 @@ class db:
         -`name` : the name of the table
         """
         if not name in self.getIdTables():
-            raise dbError, "trying to weaken a non-existent table: " + str(name)
+            raise dbError("trying to weaken a non-existent table: " + str(name))
         self.c.execute("UPDATE idtables SET weak = 1 WHERE name = :name", {'name': name})
 
     def addAss(self):
@@ -370,11 +377,11 @@ class db:
         """  add or fetch a entry from/to the confidence table, get the
         created/existing confidence index back
         """
-        if self.confidence.has_key(name):
+        if name in self.confidence:
             return (self.confidence[name])
         try:
             self.c.execute("INSERT INTO confidence VALUES (?, ?)", (None, name))
-        except sqlite3.IntegrityError, inst:
+        except sqlite3.IntegrityError as inst:
             raise inst
         self.updateConfidence()
         return (self.addConf(name))
@@ -384,7 +391,7 @@ class db:
         created/existing source index back
         """
         if name in self.getIdTables():
-            raise dbError, "source name must not equal a table name"
+            raise dbError("source name must not equal a table name")
         self.c.execute("SELECT sourceid FROM sources WHERE name = :name", {'name': name})
 
         sourceid = self.c.fetchall()
@@ -427,7 +434,7 @@ class db:
     def getWeakTables(self):
         alltab = self.getIdTables(True)
         strong = self.getIdTables(False)
-        return (filter(lambda x: x not in strong, alltab))
+        return ([x for x in alltab if x not in strong])
 
     def getIdTables(self, weak=True):
         """  get a list with the names of the tables that hold identifiers
@@ -440,9 +447,9 @@ class db:
                 self.c.execute("SELECT name FROM idtables WHERE weak != 1")
             else:
                 self.c.execute("SELECT name FROM idtables")
-            tables = map(lambda x: x[0], self.c.fetchall())
+            tables = [x[0] for x in self.c.fetchall()]
             return (tables)
-        except sqlite3.OperationalError, inst:
+        except sqlite3.OperationalError as inst:
             if re.match('no such table', str(inst)):
                 return (None)
             else:
@@ -472,13 +479,13 @@ class db:
                     if tmp:
                         for t in tmp:
                             res.add(t[0])
-                except sqlite3.OperationalError, inst:
+                except sqlite3.OperationalError as inst:
                     if re.match("no such table", str(inst)):
                         pass
                     else:
                         raise
         # loose the set feature
-        res = map(lambda x: x, res)
+        res = [x for x in res]
         return (res)
 
     def getMask(self, un, weak=False, wildcards=False):
@@ -499,7 +506,7 @@ class db:
                 try:
                     self.c.execute(st)
                     tmp = self.c.fetchall()
-                except sqlite3.OperationalError, inst:
+                except sqlite3.OperationalError as inst:
                     if re.match('no such table', inst):
                         pass
                     else:
@@ -525,7 +532,7 @@ class db:
         """
 
         if table not in self.getIdTables(weak=True):
-            raise dbError, "trying to insert to unknown table: " + str(table)
+            raise dbError("trying to insert to unknown table: " + str(table))
         if table in self.getWeakTables():
             conf = metmask.WEAK_CONF
         if table == '_id' or table == 'preferred':
@@ -538,7 +545,7 @@ class db:
         st = "INSERT INTO " + table + " VALUES (:id, :value, :conf, :src, :qc, :ass)"
         try:
             self.c.execute(st, {'id': _id, 'value': value, 'conf': conf, 'src': src, 'qc': qc, 'ass': ass})
-        except sqlite3.IntegrityError, inst:
+        except sqlite3.IntegrityError as inst:
             if re.match("columns.+are not unique", str(inst)):
                 if retry:
                     # the ugly hack to allow strong identifier to come from
@@ -546,7 +553,7 @@ class db:
                     stx = "SELECT DISTINCT _id FROM " + table + " WHERE " + table + " = \"" + value + "\" AND conf !=" + str(
                         metmask.WEAK_CONF)
                     self.c.execute(stx)
-                    checkOk = map(lambda x: x[0] == _id, self.c.fetchall())
+                    checkOk = [x[0] == _id for x in self.c.fetchall()]
                     if all(checkOk):
                         self.insertToMask(table, _id, value, conf, src, False, True, ass=ass)
                 else:
@@ -596,7 +603,7 @@ class db:
         if un.isEmpty():
             self.depth = 0  # no risk to get stuck agaion
             if self.debug:
-                print "#COMMENT Ignoring pointless mask"
+                print("#COMMENT Ignoring pointless mask")
             return (0)
 
         # see if we already know something about its content, otherwise
@@ -626,7 +633,7 @@ class db:
                 if self.debug:
                     pdb.set_trace()
                 else:
-                    raise recursionError, 'bogging down..'
+                    raise recursionError('bogging down..')
 
             # try to figure out what to do with the rest:
             if resolve:
@@ -635,26 +642,26 @@ class db:
                 possibility = 'merge'
             if not possibility:
                 if self.debug:
-                    print "#COMMENT keeping existing mask..",
+                    print("#COMMENT keeping existing mask..", end=' ')
                 un.subtract(cnf)  # subtract non-weak ids
                 self.setMask(un, resolve)
                 return (0)
             else:
                 self.ifconflict = possibility[0]
                 if self.debug:
-                    print "#COMMENT " + str(possibility)
+                    print("#COMMENT " + str(possibility))
 
             # >>>>Get user decision if asked for
             if self.ask:
-                print "***** conflicting mask *******"
+                print("***** conflicting mask *******")
                 cnf.show(mm=self)
-                print "***** mask to insert *********"
+                print("***** mask to insert *********")
                 un.show(mm=self)
-                print "***** overlap ****************"
+                print("***** overlap ****************")
                 intersection = un.intersect(cnf)
                 intersection.show(mm=self)
-                print "default:" + possibility
-                choice = raw_input("[m]erge/[p]rune and merge : ")
+                print("default:" + possibility)
+                choice = input("[m]erge/[p]rune and merge : ")
                 if len(choice) > 0:
                     self.ifconflict = choice
             if self.ifconflict[-1] == '!':
@@ -665,7 +672,7 @@ class db:
             # merge the new information into the existing one
             if self.ifconflict in ['', 'm']:
                 if self.debug:
-                    print "#COMMENT merging to mask..",
+                    print("#COMMENT merging to mask..", end=' ')
                 un.merge(cnf)  # got an _id.. , merge weak as well
                 self.dropMask(cnf)  # drop weak as well
             if self.ifconflict == 'p':
@@ -702,7 +709,7 @@ class db:
         _id = un.getIdentifiers('_id')[0]
         # replace
         if self.debug:
-            print "inserting mask:" + str(_id)
+            print("inserting mask:" + str(_id))
 
         # first drop any preferred we already have in the database, we
         # set it back again
@@ -718,12 +725,12 @@ class db:
                     ass = un.getAssoc(tab, ide)
 
                     if len(conf) != len(src) or len(conf) <= 0 or len(src) <= 0:
-                        raise dbError, 'confidence and source not defined or not of equal length'
+                        raise dbError('confidence and source not defined or not of equal length')
 
                     for i in range(0, len(conf)):
                         self.insertToMask(tab, _id, str(ide), conf[i], src[i], ass=ass[i])
 
-                except sqlite3.IntegrityError, inst:
+                except sqlite3.IntegrityError as inst:
                     raise
         return (1)
 
@@ -735,11 +742,11 @@ class db:
         -`un` : a mask
         """
         if not un.hasTable('_id'):
-            raise dbError, "get an _id before fixing the preferred"
+            raise dbError("get an _id before fixing the preferred")
         if un.hasTable('preferred'):
             self.c.execute("SELECT _id FROM preferred WHERE preferred = :pref", \
                            {'pref': un.getIdentifiers('preferred')[0]})
-            checkOk = map(lambda x: x[0] == un.getIdentifiers('_id')[0], self.c.fetchall())
+            checkOk = [x[0] == un.getIdentifiers('_id')[0] for x in self.c.fetchall()]
             if all(checkOk):
                 return (1)
             else:
@@ -779,7 +786,7 @@ class db:
                 st1 = "DELETE FROM " + tab + " WHERE " + tab + "  = :ide"
                 try:
                     self.c.execute(st1, {'ide': str(ide)})
-                except sqlite3.OperationalError, inst:
+                except sqlite3.OperationalError as inst:
                     raise inst
 
     def dropMask(self, un):
@@ -791,14 +798,14 @@ class db:
         """
         mmids = self.getMmid(un)
         if not mmids:
-            raise dbError, 'no such mask'
+            raise dbError('no such mask')
         tables = self.getIdTables()
         for mm in mmids:
             for tab in tables:
                 st1 = "DELETE FROM " + tab + " WHERE _id = :mm"
                 try:
                     self.c.execute(st1, {'mm': str(mm)})
-                except sqlite3.OperationalError, inst:
+                except sqlite3.OperationalError as inst:
                     raise inst
 
     def simpleQuery(self, name, what='_id', to='_id',
@@ -827,8 +834,7 @@ class db:
         if to[0] == 'ALL':
             to = self.getIdTables(weak)
         if re.match("~", to[0]):
-            to = filter(lambda x: x not in map(lambda x: x.replace("~", ""), to),
-                        self.getIdTables(weak))
+            to = [x for x in self.getIdTables(weak) if x not in [x.replace("~", "") for x in to]]
         if not isinstance(to, list):
             to = [to]
         if not isinstance(what, list):
@@ -840,9 +846,9 @@ class db:
             for n in name:
                 un.append(w, n)
 
-        default = [map(lambda x: [], range(0, len(to)))]
-        reqWeak = filter(lambda x: x in self.getWeakTables(), to)
-        if any(map(lambda x: x in self.getWeakTables(), what)):
+        default = [[[] for x in range(0, len(to))]]
+        reqWeak = [x for x in to if x in self.getWeakTables()]
+        if any([x in self.getWeakTables() for x in what]):
             weak = True
 
         # if any asked table is weak but 'weak=False' then first get
@@ -867,15 +873,15 @@ class db:
         except NameError:
             return (default)
         # found tables
-        found = map(lambda x: x.hasTable(to), masks)
+        found = [x.hasTable(to) for x in masks]
 
         # generator for
         def iden(tab, mzk):
             for t in tab:
-                yield (map(lambda ma: ma.getIdentifiers(t), mzk)[0])
+                yield [ma.getIdentifiers(t) for ma in mzk][0]
 
         # make sure we do not query for something we do not know how to find
-        if not any(map(lambda x: x in query.KNOWNTABLES, to)):
+        if not any([x in query.KNOWNTABLES for x in to]):
             external = False
 
         # either found or explicitly told not to go online
@@ -903,18 +909,18 @@ class db:
         i = 1
         for ma in masks:
             if self.debug:
-                print "#COMMENT No hit, trying external resources..",
+                print("#COMMENT No hit, trying external resources..", end=' ')
             externalMask = query.fetch(self, ma, internal=len(masks) > 1, to=to)
             if not externalMask:
                 if self.debug:
-                    print "no hit, giving up"
+                    print("no hit, giving up")
                 continue
             if self.debug:
-                print "found it! "
+                print("found it! ")
             if learn:
                 if self.debug:
-                    print "#COMMENT adding the information"
-                map(self.createIdTable, externalMask.getTables())
+                    print("#COMMENT adding the information")
+                list(map(self.createIdTable, externalMask.getTables()))
                 self.setMask(externalMask)
 
             resmasks.append(externalMask)
@@ -937,7 +943,7 @@ class db:
         """
         # get all _id
         self.c.execute('SELECT _id FROM _id')
-        return (map(lambda x: x[0], self.c.fetchall()))
+        return ([x[0] for x in self.c.fetchall()])
 
     def export(self, tables, weak=False):
         """print all contents of the given tables to stdout
@@ -951,24 +957,24 @@ class db:
         if tables[0] == "ALL":
             tables = self.getIdTables()
 
-        if any(map(lambda x: x in self.getWeakTables(), tables)):
+        if any([x in self.getWeakTables() for x in tables]):
             weak = True
 
         # print header
         tmp = "\"" + "\",\"".join(tables) + "\""
-        print tmp
+        print(tmp)
         for mm in mmids:
             ma = mask({})
             ma.append('_id', mm)
             ma = self.getMask(ma, weak=weak)[0]
-            if any(map(lambda x: x in tables, ma.getTables())):
+            if any([x in tables for x in ma.getTables()]):
                 i = 0
                 # one mask one row
                 for tab in tables:
                     i = i + 1
                     if ma.hasTable(tab):
                         ide = ma.getIdentifiers(tab)
-                        ide = map(str, ide)
+                        ide = list(map(str, ide))
                         tmp = "\"" + "\"|\"".join(ide) + "\""
                         sys.stdout.write(tmp)
                     if i != len(tables):
@@ -981,25 +987,25 @@ class db:
         """
         try:
             tabs = self.getIdTables()
-            print "metmask db@" + self.db
-            print "Known identifiers:"
+            print("metmask db@" + self.db)
+            print("Known identifiers:")
             for t in tabs:
                 self.c.execute("SELECT count(distinct " + t + ") FROM " + t)
-                lines = map(lambda x: x[0], self.c.fetchall())
-                print t + ":"
-                print str(lines) + " rows"
+                lines = [x[0] for x in self.c.fetchall()]
+                print(t + ":")
+                print(str(lines) + " rows")
             if more:
                 self.c.execute("SELECT * FROM sources")
-                print "Sources:"
-                print '%-5s %-10s' % ('Code', 'Name')
+                print("Sources:")
+                print('%-5s %-10s' % ('Code', 'Name'))
                 tmp = self.c.fetchall()
                 for t in tmp:
-                    print '%-5s %-10s' % (str(t[0]), str(t[1]))
+                    print('%-5s %-10s' % (str(t[0]), str(t[1])))
                 self.c.execute("SELECT * FROM confidence")
-                print "Confidence codes:"
-                print '%-5s %-15s' % ('Code', 'Name')
+                print("Confidence codes:")
+                print('%-5s %-15s' % ('Code', 'Name'))
                 tmp = self.c.fetchall()
                 for t in tmp:
-                    print '%-5s %-15s' % (str(t[0]), str(t[1]))
+                    print('%-5s %-15s' % (str(t[0]), str(t[1])))
         except:
-            raise dbError, "Could not perform a simple select statement"
+            raise dbError("Could not perform a simple select statement")

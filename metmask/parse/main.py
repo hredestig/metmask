@@ -1,7 +1,21 @@
-import http.client
+from __future__ import print_function
+from future import standard_library
+standard_library.install_aliases()
+from builtins import map
+from builtins import str
+from builtins import next
+from builtins import object
 import shlex
 import socket
-import urllib.request, urllib.error, urllib.parse
+import six
+if six.PY2:
+    from urllib.request import urlopen as urlopen
+    from  urllib.error import URLError as URLError
+    import http.client as http_client
+else:
+    import urllib.request as urlopen
+    import urllib.error as URLError
+    import http.client as http_client
 
 import metmask.parse
 from metmask.parse import *
@@ -56,7 +70,7 @@ def fixLine(ll, sep):
     return (res)
 
 
-class importer:
+class importer(object):
     """A class for importing information to the metmask database
     """
 
@@ -188,12 +202,12 @@ class importer:
         ignore junk response
         """
         try:
-            return (urllib.request.urlopen(url))
-        except http.client.BadStatusLine as inst:
+            return urlopen(url)
+        except http_client.BadStatusLine as inst:
             if self.mm.debug:
                 print("#COMMENT bad response skipping")
                 return (None)
-        except urllib.error.URLError as inst:
+        except URLError.URLError as inst:
             if self.mm.debug:
                 print("#COMMENT no response skipping")
                 return (None)

@@ -13,7 +13,7 @@ setup(name='metmask',
       author='Henning Redestig',
       author_email='henning.red@gmail.com',
       url='http://metmask.sourceforge.net',
-      requires=['sqlite3', 'SOAPpy'],
+      requires=['sqlite3'],
       platforms=['Linux', 'WinXP'],
       classifiers = [
         'Environment :: Console',

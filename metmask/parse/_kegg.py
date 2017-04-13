@@ -1,10 +1,11 @@
+from builtins import object
 import re
 
 from .main import fileFormatError
 from metmask.mask import mask
 
 
-class parser:
+class parser(object):
     """ Parse and import the PATHWAYS from the KEGG compounds database
     dump file. KEGG identifiers are created for those compounds that
     aren't already in the database but no other identifiers are read.

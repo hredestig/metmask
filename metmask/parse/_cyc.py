@@ -1,10 +1,11 @@
+from builtins import object
 import re
 
 from .main import fixLine, parserError
 from metmask.mask import mask
 
 
-class parser:
+class parser(object):
     def __init__(self, parent):
         parent.tables = ['synonym', 'cas', 'kegg', 'cycpath', 'smiles',
                          'formula', 'pubchem', 'knapsack']

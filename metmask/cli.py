@@ -15,9 +15,15 @@ Copyright (C) Henning Redestig
 2009
 See COPYING.txt for licensing details.
 """
+from __future__ import print_function
 
+from future import standard_library
+standard_library.install_aliases()
+from builtins import input
+from builtins import str
+from builtins import range
 from optparse import OptionParser
-import fileinput, sys, urllib2, ConfigParser, os, re, traceback
+import fileinput, sys, urllib.request, urllib.error, urllib.parse, configparser, os, re, traceback
 import metmask
 import metmask.mask
 import metmask.dbi
@@ -27,32 +33,32 @@ from metmask.parse import main as pmain
 
 
 def oUrl(url):
-    req = urllib2.Request(url)
+    req = urllib.request.Request(url)
     try:
-        handle = urllib2.urlopen(req)
-        handle.next()
-        handle = urllib2.urlopen(req)
+        handle = urllib.request.urlopen(req)
+        next(handle)
+        handle = urllib.request.urlopen(req)
     except:
         queryError("bad url, correct the metmask config file")
     return (handle)
 
 
 def queryMessage(message):
-    print
+    print()
     "#COMMENT:" + message
 
 
 def queryWarning(message):
-    print
+    print()
     "#COMMENT:" + message
-    print >> open(errlog, "a"), "#COMMENT:", message
+    print("#COMMENT:", message, file=open(errlog, "a"))
 
 
 def queryError(message, inst=None):
     """generic query error, used to die gracefully without printing ugly tracebacks
     """
     message = message + " ** python error: " + str(inst)
-    print >> sys.stderr, "#ERROR:" + message
+    print("#ERROR:" + message, file=sys.stderr)
     if inst and options.verbose:
         traceback.print_exc(file=open(errlog, "a"))
         raise inst
@@ -73,7 +79,7 @@ def doQuery(iden):
     # if we get nothing then return just an empty line, this makes
     # scripting with empty lines easier
     if inputIden == "":
-        print
+        print()
         return (0)
 
     try:
@@ -107,7 +113,7 @@ def doQuery(iden):
                                  weak=options.universal,
                                  outmask=options.output in ['mask', 'graph'],
                                  wildcards=options.wild)
-    except Exception, inst:
+    except Exception as inst:
         queryError("unknown table maybe?", inst)
     if options.output == 'flat':
         output_flat(res, nastring, to)
@@ -121,7 +127,7 @@ def output_graph(res):
     for r in res:
         try:
             r.toBIP(out=sys.stdout, mm=mm)
-        except Exception, inst:
+        except Exception as inst:
             queryError("Graph to generate is empty, maybe not enough identifier types?", inst)
 
 
@@ -134,7 +140,7 @@ def output_flat(res, nastring, to):
     if not res:
         sys.stdout.write("\"" + "\",\"".join([nastring] * len(to)) + "\"\n")
     else:
-        ran = range(0, len(res))
+        ran = list(range(0, len(res)))
         if options.onehit:
             ran = [0]
         for k in ran:
@@ -150,7 +156,7 @@ def output_flat(res, nastring, to):
                     else:
                         sys.stdout.write("NA")
                 else:
-                    ranID = range(0, len(subres[i]))
+                    ranID = list(range(0, len(subres[i])))
                     if options.first:
                         ranID = [0]
                     for j in ranID:
@@ -194,10 +200,10 @@ if __name__ == '__main__':
 
     # try to fetch the configurations, if they are not there, write the
     # default config file
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     configurations = config.read(configfile)
     if not configurations:
-        config = ConfigParser.RawConfigParser()
+        config = configparser.RawConfigParser()
         config.add_section('general')
         config.set('general', 'db', dbfile)
         config.add_section('simple')
@@ -287,7 +293,7 @@ if __name__ == '__main__':
                       dest="confidence")
     parser.add_option("-p", "--parser", action="store",
                       help="Use this parser to populate the database",
-                      choices=map(lambda x: re.sub("^_", "", x), metmask.parse.PARSERS),
+                      choices=[re.sub("^_", "", x) for x in metmask.parse.PARSERS],
                       dest="parser")
     parser.add_option("-o", "--output", action="store",
                       help="Output modes, flat: comma delimited output, mask: a text represenation of all info in the "
@@ -336,14 +342,14 @@ if __name__ == '__main__':
     # not a new database but no write access
     try:
         mm = metmask.dbi.db(db=options.db, ask=options.merge, debug=options.verbose, minoverlap=options.minoverlap)
-    except Exception, inst:
+    except Exception as inst:
         queryError('bad db @ ' + options.db, inst)
 
     # get some statistics
     if options.stats:
         try:
             mm.stats(options.universal)
-        except Exception, inst:
+        except Exception as inst:
             queryError("", inst)
         quit()
 
@@ -354,9 +360,9 @@ if __name__ == '__main__':
         if options.universal:
             choice = 'yes'
         else:
-            choice = raw_input("really try to drop identifier " + str(options.delMask) + " (yes/no): ")
+            choice = input("really try to drop identifier " + str(options.delMask) + " (yes/no): ")
         while (choice not in ['yes', 'no']):
-            choice = raw_input("please answer yes or no: ")
+            choice = input("please answer yes or no: ")
         if choice == 'yes':
             un = metmask.mask.mask({})
             un.append(options.table, options.delMask)
@@ -365,14 +371,14 @@ if __name__ == '__main__':
                     mm.dropMask(un)
                 else:
                     mm.dropIdentifiers(un)
-            except Exception, inst:
+            except Exception as inst:
                 queryError("maybe no such identifier", inst)
         quit()
 
     # export
     if options.export:
         tables = pmain.fixLine(options.export, sep=",")
-        badTables = filter(lambda x: x not in mm.getIdTables() + ['ALL'], tables)
+        badTables = [x for x in tables if x not in mm.getIdTables() + ['ALL']]
         if badTables:
             queryError("unknown table" + str(badTables) + \
                        " choose one or more (comma-delimited) from " + \
@@ -448,9 +454,9 @@ if __name__ == '__main__':
                                         master=options.master,
                                         token=defaults['token'])
             myimporter.parser.process()
-        except NameError, inst:
+        except NameError as inst:
             queryError("Choose one of following parsers: " + str(metmask.parse.PARSERS), inst)
-        except Exception, inst:
+        except Exception as inst:
             queryError("", inst)
         quit()
 
@@ -463,7 +469,7 @@ if __name__ == '__main__':
     try:
         for iden in fileinput.input(args):
             doQuery(iden)
-    except IOError, inst:
+    except IOError as inst:
         queryError("Invalid choice of options or bad input", inst)
 
     quit()
