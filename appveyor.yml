@@ -1,0 +1,20 @@
+skip_tags: true
+clone_folder: c:\projects\metmask
+image: Visual Studio 2017
+build: off
+
+environment:
+  matrix:
+    - PYTHON: "C:\\Miniconda"
+    - PYTHON: "C:\\Miniconda-x64"
+    - PYTHON: "C:\\Miniconda36"
+    - PYTHON: "C:\\Miniconda36-x64"
+
+install:
+  - cd c:\projects\metmask
+  - dir
+  - "%PYTHON%/Scripts/conda.exe install -y pytest future six"
+  - "%PYTHON%/Scripts/pip.exe install ."
+
+test_script:
+  - "%PYTHON%/Scripts/py.test.exe -v -rsx"
