@@ -8,6 +8,7 @@ from builtins import object
 import shlex
 import socket
 import six
+from sqlite3 import ProgrammingError
 if six.PY2:
     from urllib.request import urlopen as urlopen
     from  urllib.error import URLError as URLError
@@ -116,10 +117,10 @@ class importer(object):
         self.fileobj = fileobj
         # if we didnt get anything (just True), assume we loop over
         # all masks in the database
-        if self.fileobj == True:
+        if self.fileobj is True:
             self.fileobj = iter(mm.getAllMmids())
         # if we only got a string, assume it was a filename
-        if not 'next' in dir(self.fileobj):
+        if 'next' not in dir(self.fileobj):
             self.fileobj = open(self.fileobj, 'r')
         """eventually an iterator giving the input"""
 
@@ -143,7 +144,10 @@ class importer(object):
     def __del__(self):
         if 'close' in dir(self.fileobj):
             self.fileobj.close()
-        self.mm.connection.commit()
+        try:
+            self.mm.connection.commit()
+        except ProgrammingError:
+            pass
 
     def getLine(self, comment=None):
         """safe way to get a new line"""

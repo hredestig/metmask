@@ -6,7 +6,7 @@ from metmask.dbi import db, determine_path
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope='function')
 def memory_db():
     return db(':memory:')
 

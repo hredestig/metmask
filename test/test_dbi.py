@@ -1,3 +1,4 @@
+import os
 from metmask.mask import mask
 
 compounds = {'citrate': {'cas': '77-92-9',
@@ -31,3 +32,5 @@ def test_insert_delete_mask(memory_db):
     memory_db.dropMask(un)
     result = memory_db.simpleQuery('foo', 'table1', 'table2')
     assert len(result[0][0]) == 0
+    memory_db.close()
+    assert not os.path.exists(':memory:')

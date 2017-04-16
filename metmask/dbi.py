@@ -167,17 +167,17 @@ class db(object):
         self.rw = False
         self.c = None
         """ indicates if we have rw access or not """
-        if not os.access(self.db, os.F_OK):
-            try:
-                os.mknod(self.db)
-            except:
+        if self.db != ':memory:':
+            if not os.access(self.db, os.F_OK):
                 try:
                     open(self.db, 'a').close()
                 except:
                     raise dbError('can not create db @ ' + self.db)
-        if not os.access(self.db, os.R_OK):
-            raise dbError('can not access db @ ' + self.db)
-        self.rw = os.access(self.db, os.W_OK)
+            if not os.access(self.db, os.R_OK):
+                raise dbError('can not access db @ ' + self.db)
+            self.rw = os.access(self.db, os.W_OK)
+        else:
+            self.rw = True
         self.connection = sqlite3.connect(self.db)
         """ `sqlite3.connection` the current connection to the database """
         self.connection.text_factory = str
@@ -197,9 +197,10 @@ class db(object):
             self.c.execute("SELECT number FROM version")
             version = self.c.fetchone()[0]
             if metmask.__version__.split('.')[1] != version.split('.')[1]:
-                raise dbError('existing database was created with version ' + \
-                               str(version) + \
-                               ', the database format has changed, re-create the database or use a matching metmask version')
+                raise dbError('existing database was created with version ' +
+                              str(version) +
+                              ', the database format has changed, re-create '
+                              'the database or use a matching metmask version')
 
         self.updateConfidence()
         self.updateIdpatterns()
@@ -209,7 +210,7 @@ class db(object):
         try:
             self.close()
         except sqlite3.ProgrammingError as inst:
-            if inst[0] != 'Cannot operate on a closed database.':
+            if str(inst) != 'Cannot operate on a closed database.':
                 raise inst
 
     def updateIdpatterns(self):
