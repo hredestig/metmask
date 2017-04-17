@@ -1,3 +1,9 @@
+.. image:: https://img.shields.io/travis/hredestig/metmask.svg
+        :target: https://travis-ci.org/hredestig/metmask
+
+.. image:: https://ci.appveyor.com/api/projects/status/github/hredestig/metmask?svg=true
+        :target: https://ci.appveyor.com/project/hredestig/metmask
+
 Installation
 ============
 
